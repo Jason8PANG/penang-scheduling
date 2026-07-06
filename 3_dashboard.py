@@ -124,9 +124,9 @@ if not os.path.exists(TEMP):
 with open(TEMP, 'r', encoding='utf-8') as f:
     html = f.read()
 
-# Inject Sum Table button after header
-html = html.replace('<h1>Penang Production Dashboard</h1>',
-                    '<h1>Penang Production Dashboard</h1>\n<a href="/sum" class="btn" style="margin-left:15px;padding:6px 16px;background:#1a237e;color:#fff;text-decoration:none;border-radius:4px;font-size:12px">📊 Sum Table</a>')
+# Inject Sum Table button before the WK div
+html = html.replace('<div class="hb">WK0630</div>',
+                    '<a href="/sum" class="btn" style="margin-right:12px;padding:5px 12px;background:#1a237e;color:#fff;text-decoration:none;border-radius:4px;font-size:12px">📊 Sum Table</a><div class="hb">WK0630</div>')
 
 # ──────────────────────────────────────────────
 # DATA MAPPING: 20-slot arrays (0-19) → 5/6/5 layout
