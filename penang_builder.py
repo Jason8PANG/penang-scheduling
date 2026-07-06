@@ -259,16 +259,25 @@ def build_all(ds=None):
     PROJECTS=active_pjs; N=len(PROJECTS)
 
     # Build arrays
-    ca=[]; for p in PROJECTS: d=cr[p]; ca.append([d['pd']]+d[M1]+[d['pd']+sum(d[M1])]+d[M2]+[sum(d[M2])]+d[M3]+[sum(d[M3])])
+    ca=[]
+    for p in PROJECTS:
+        d=cr[p]; ca.append([d['pd']]+d[M1]+[d['pd']+sum(d[M1])]+d[M2]+[sum(d[M2])]+d[M3]+[sum(d[M3])])
     ct=[sum(ca[i][j] for i in range(N)) for j in range(len(ca[0]))]
 
-    ma=[]; for p in PROJECTS: d=mfs[p]; ma.append(d[M1]+[sum(d[M1])]+d[M2]+[sum(d[M2])]+d[M3]+[sum(d[M3])])
+    ma=[]
+    for p in PROJECTS:
+        d=mfs[p]; ma.append(d[M1]+[sum(d[M1])]+d[M2]+[sum(d[M2])]+d[M3]+[sum(d[M3])])
     mt_=[sum(ma[i][j] for i in range(N)) for j in range(len(ma[0]))]
 
-    na=[]; for p in PROJECTS: d=nai[p]; na.append([d['sh']]+d[M1]+[sum(d[M1])]+d[M2]+[sum(d[M2])]+d[M3]+[sum(d[M3])])
+    na=[]
+    for p in PROJECTS:
+        d=nai[p]; na.append([d['sh']]+d[M1]+[sum(d[M1])]+d[M2]+[sum(d[M2])]+d[M3]+[sum(d[M3])])
     nt=[sum(na[i][j] for i in range(N)) for j in range(len(na[0]))]
 
-    oa=[]; for p in PROJECTS: d=otdr[p]; oa.append([d[f'{M1}_pd']]+d[M1]+[d[f'{M1}_adv']]+[sum(d[M1])+d[f'{M1}_adv']]+[d[f'{M2}_pd']]+d[M2]+[d[f'{M2}_adv']]+[sum(d[M2])+d[f'{M2}_adv']]+[d[f'{M3}_pd']]+d[M3]+[d[f'{M3}_adv']]+[sum(d[M3])+d[f'{M3}_adv']])
+    oa=[]
+    for p in PROJECTS:
+        d=otdr[p]
+        oa.append([d[f'{M1}_pd']]+d[M1]+[d[f'{M1}_adv']]+[sum(d[M1])+d[f'{M1}_adv']]+[d[f'{M2}_pd']]+d[M2]+[d[f'{M2}_adv']]+[sum(d[M2])+d[f'{M2}_adv']]+[d[f'{M3}_pd']]+d[M3]+[d[f'{M3}_adv']]+[sum(d[M3])+d[f'{M3}_adv']])
     ot=[sum(oa[i][j] for i in range(N)) for j in range(len(oa[0]))]
 
     otdr_pd_totals=[sum(otdr[p][f'{M1}_pd'] for p in PROJECTS),sum(otdr[p][f'{M2}_pd'] for p in PROJECTS),sum(otdr[p][f'{M3}_pd'] for p in PROJECTS)]
