@@ -193,10 +193,10 @@ def build_all(ds=None):
     for p in PROJECTS: d=mfs[p]; ma.append(d[M1]+[sf_int(sum(d[M1]))]+d[M2]+[sf_int(sum(d[M2]))]+d[M3]+[sf_int(sum(d[M3]))])
     mt_=[sf_int(sum(ma[i][j] for i in range(N))) for j in range(len(ma[0]))]
     na=[]; 
-    for p in PROJECTS: d=nai[p]; na.append([d['sh']]+d[M1]+[sf_int(sum(d[M1]))]+d[M2]+[sf_int(sum(d[M2]))]+d[M3]+[sf_int(sum(d[M3]))])
+    for p in PROJECTS: d=nai[p]; na.append([d['sh']]+d[M1]+[sf_int(d['sh']+sum(d[M1]))]+d[M2]+[sf_int(sum(d[M2]))]+d[M3]+[sf_int(sum(d[M3]))])
     nt=[sf_int(sum(na[i][j] for i in range(N))) for j in range(len(na[0]))]
     oa=[]; 
-    for p in PROJECTS: d=otdr[p]; oa.append([d[f'{M1}_pd']]+d[M1]+[d[f'{M1}_adv']]+[sf_int(sum(d[M1])+d[f'{M1}_adv'])]+[d[f'{M2}_pd']]+d[M2]+[d[f'{M2}_adv']]+[sf_int(sum(d[M2])+d[f'{M2}_adv'])]+[d[f'{M3}_pd']]+d[M3]+[d[f'{M3}_adv']]+[sf_int(sum(d[M3])+d[f'{M3}_adv'])])
+    for p in PROJECTS: d=otdr[p]; oa.append([d[f'{M1}_pd']]+d[M1]+[d[f'{M1}_adv']]+[sf_int(d[f'{M1}_pd']+sum(d[M1])+d[f'{M1}_adv'])]+[d[f'{M2}_pd']]+d[M2]+[d[f'{M2}_adv']]+[sf_int(sum(d[M2])+d[f'{M2}_adv'])]+[d[f'{M3}_pd']]+d[M3]+[d[f'{M3}_adv']]+[sf_int(sum(d[M3])+d[f'{M3}_adv'])])
     ot=[sf_int(sum(oa[i][j] for i in range(N))) for j in range(len(oa[0]))]
     TW=WK1+WK2+WK3
     am1=sf_int(sum(sum(mfa[p][M1]) for p in PROJECTS)); am2=sf_int(sum(sum(mfa[p][M2]) for p in PROJECTS)); am3=sf_int(sum(sum(mfa[p][M3]) for p in PROJECTS))
