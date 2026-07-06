@@ -1,0 +1,22 @@
+services:
+  penang-scheduling:
+    build: .
+    container_name: penang-scheduling
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - penang-outputs:/app/outputs
+    networks:
+      - public-net
+
+volumes:
+  penang-outputs:
+
+networks:
+  public-net:
+    external: true
