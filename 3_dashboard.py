@@ -7,7 +7,7 @@ Step 3: Create Dashboard HTML from Sum webpage data
 import datetime, os, re, json, base64, openpyxl
 
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
-SUM_DIR = os.path.expanduser(r'~\Desktop\Sum')
+SUM_DIR = SCRIPTS_DIR
 today = datetime.datetime.now()
 CUR_YEAR, CUR_MTH = today.year, today.month
 M1, M2, M3 = CUR_MTH, CUR_MTH+1, CUR_MTH+2
@@ -110,8 +110,12 @@ for i, p in enumerate(PROJECTS):
             otdr_dc[i][WK1 + WK2 + w] = cr_row[WK1 + 1 + WK2 + 1 + w] if len(cr_row) > WK1 + 1 + WK2 + 1 + w else 0
 
 # Template
-TEMP = os.path.join(os.environ['USERPROFILE'], 'AppData', 'Local', 'Temp', 'Penang_Chart_Dashboard_WK0630.html')
-if not os.path.exists(TEMP):
+# Template: try own directory first, then other locations
+if os.path.exists(os.path.join(SCRIPTS_DIR, 'Penang_Chart_Dashboard_WK0630.html')):
+    TEMP = os.path.join(SCRIPTS_DIR, 'Penang_Chart_Dashboard_WK0630.html')
+elif 'USERPROFILE' in os.environ:
+    TEMP = os.path.join(os.environ['USERPROFILE'], 'AppData', 'Local', 'Temp', 'Penang_Chart_Dashboard_WK0630.html')
+else:
     TEMP = os.path.join(SUM_DIR, 'Penang_Chart_Dashboard_WK0630.html')
 if not os.path.exists(TEMP):
     print('ERROR: Template not found!')
@@ -119,6 +123,10 @@ if not os.path.exists(TEMP):
 
 with open(TEMP, 'r', encoding='utf-8') as f:
     html = f.read()
+
+# Inject Sum Table button after header
+html = html.replace('<h1>Penang Production Dashboard</h1>',
+                    '<h1>Penang Production Dashboard</h1>\n<a href="/sum" class="btn" style="margin-left:15px;padding:6px 16px;background:#1a237e;color:#fff;text-decoration:none;border-radius:4px;font-size:12px">📊 Sum Table</a>')
 
 # ──────────────────────────────────────────────
 # DATA MAPPING: 20-slot arrays (0-19) → 5/6/5 layout
