@@ -153,7 +153,7 @@ def build_all(ds=None):
         nwi=si(row[21] if len(row)>21 else None); nmi=si(row[20] if len(row)>20 else None)
         src_no=str(row[11] or '') if len(row)>11 else ''
         stn,exc,st_time=wip_status(src_no)
-        oi=(str(row[1] or ''),src_no,round(sa,2),str(row[6] or '')[:10],str(row[5] or '')[:10],stn,exc,st_time)
+        oi=(str(row[2] or ''),src_no,round(sa,2),str(row[7] or '')[:10],str(row[6] or '')[:10],stn,exc,st_time)
         if nwl=='shipped': nai[pj]['sh']+=sa; nai_orders[pj]['sh'].append(oi)
         elif nmi==M1 and nwi and 1<=nwi<=WK1: nai[pj][M1][nwi-1]+=sa; nai_orders[pj][M1][nwi-1].append(oi)
         elif nmi==M2 and nwi and 1<=nwi<=WK2: nai[pj][M2][nwi-1]+=sa; nai_orders[pj][M2][nwi-1].append(oi)
@@ -204,26 +204,46 @@ def build_all(ds=None):
 
     # OTDR Real Summary
     real_25=['']*25
-    for w in range(WK1): v=sum(real[p][M1][w] for p in PROJECTS); real_25[w]=sf_int(v) if v else ''
-    for w in range(WK2): v=sum(real[p][M2][w] for p in PROJECTS); real_25[5+w]=sf_int(v) if v else ''
-    for w in range(WK3): v=sum(real[p][M3][w] for p in PROJECTS); real_25[11+w]=sf_int(v) if v else ''
-    rs=['']*len(real_25)
-    for w in range(WK1): ci=1+w; rs[w]=min(round(real_25[w]/ct[ci]*100),100) if ci<len(ct) and ct[ci] and real_25[w]!='' and real_25[w] else ''
-    for w in range(WK2): ci=4+WK1+w; rs[5+w]=min(round(real_25[5+w]/ct[ci]*100),100) if ci<len(ct) and ct[ci] and real_25[5+w]!='' and real_25[5+w] else ''
-    for w in range(WK3): ci=6+WK1+WK2+1+w; rs[11+w]=min(round(real_25[11+w]/ct[ci]*100),100) if ci<len(ct) and ct[ci] and real_25[11+w]!='' and real_25[11+w] else ''
-    ott=[0]*len(oa[0])
-    for j in range(len(oa[0])):
-        v=0
-        for p in PROJECTS:
-            d=otdr[p]
-            if j==0: v+=d[f'{M1}_pd']
-            elif 1<=j<=WK1: v+=d[M1][j-1]
-            elif j==WK1+1: v+=d[f'{M1}_adv']
-            elif WK1+3<=j<=WK1+2+WK2: v+=d[M2][j-(WK1+3)]
-            elif j==WK1+WK2+3: v+=d[f'{M2}_adv']
-            elif WK1+WK2+5<=j<=WK1+WK2+4+WK3: v+=d[M3][j-(WK1+WK2+5)]
-            elif j==WK1+WK2+WK3+5: v+=d[f'{M3}_adv']
-        ott[j]=sf_int(v)
+    # OTDR Total from OTDR_ACCU (otdd), 25-slot layout
+    # OTDR Status = OTDR Total/CR, Real Status = Real Total/CR
+    ott_accu=['']*25; os_=['']*25; rs_status=['']*25
+    real_arr=['']*25
+    
+    # M1 weekly: positions 1..WK1
+    for w in range(WK1):
+        t=sum(otdd[p][M1][w] for p in PROJECTS)
+        ott_accu[1+w]=sf_int(t) if t else ''
+        ci=1+w
+        if ci<len(ct) and ct[ci] and ott_accu[1+w]!='':
+            os_[1+w]=min(round(ott_accu[1+w]/ct[ci]*100),100)
+        t2=sum(real[p][M1][w] for p in PROJECTS)
+        real_arr[1+w]=sf_int(t2) if t2 else ''
+        if real_arr[1+w]!='':
+            rs_status[1+w]=min(round(real_arr[1+w]/ct[ci]*100),100) if ci<len(ct) and ct[ci] else ''
+    # M2 weekly: positions 1+WK1+3 .. 1+WK1+3+WK2-1
+    for w in range(WK2):
+        t=sum(otdd[p][M2][w] for p in PROJECTS)
+        idx=1+WK1+3+w
+        ott_accu[idx]=sf_int(t) if t else ''
+        ci=1+WK1+1+w
+        if ci<len(ct) and ct[ci] and ott_accu[idx]!='':
+            os_[idx]=min(round(ott_accu[idx]/ct[ci]*100),100)
+        t2=sum(real[p][M2][w] for p in PROJECTS)
+        real_arr[idx]=sf_int(t2) if t2 else ''
+        if real_arr[idx]!='':
+            rs_status[idx]=min(round(real_arr[idx]/ct[ci]*100),100) if ci<len(ct) and ct[ci] else ''
+    # M3 weekly: positions 1+WK1+3+WK2+3 .. end
+    for w in range(WK3):
+        t=sum(otdd[p][M3][w] for p in PROJECTS)
+        idx=1+WK1+3+WK2+3+w
+        ott_accu[idx]=sf_int(t) if t else ''
+        ci=1+WK1+1+WK2+1+w
+        if ci<len(ct) and ct[ci] and ott_accu[idx]!='':
+            os_[idx]=min(round(ott_accu[idx]/ct[ci]*100),100)
+        t2=sum(real[p][M3][w] for p in PROJECTS)
+        real_arr[idx]=sf_int(t2) if t2 else ''
+        if real_arr[idx]!='':
+            rs_status[idx]=min(round(real_arr[idx]/ct[ci]*100),100) if ci<len(ct) and ct[ci] else ''
 
     cr_total=sf_int(sum(cr[p]['pd'] for p in PROJECTS)+sum(sum(cr[p][M1]) for p in PROJECTS)+sum(sum(cr[p][M2]) for p in PROJECTS)+sum(sum(cr[p][M3]) for p in PROJECTS))
 
@@ -255,8 +275,8 @@ def build_all(ds=None):
         'nai_tot':[sf_int(v) for v in nt],
         'otdr':[[sf_int(v) for v in r] for r in oa],
         'otdr_tot':[sf_int(v) for v in ot],
-        'otdr_stat':rs,'cr_total':cr_total,
-        'real_total':real_25,'real_stat':rs,
+        'otdr_stat':os_,'cr_total':cr_total,
+        'real_total':real_arr,'real_stat':rs_status,
         'do':[[0]*TW for _ in range(N)],'dc':[[0]*TW for _ in range(N)],
         'act_m1':am1,'act_m2':am2,'act_m3':am3,'fest_m1':fm1,'fest_m2':fm2,'fest_m3':fm3,
         'mta':[0]*19,'mtf':[0]*19}
@@ -365,10 +385,10 @@ def build_all(ds=None):
                 hx+=f'<td class="d pct" {s}>{v}%</td>' if 'Status' in label else f'<td class=d {s}>{fmtv(v)}</td>'
             else: hx+=f'<td class=d {s}>{fmtv(v)}</td>'
         return hx+'</tr>'
-    sum_html+=sum_row('OTDR Total',ott,'#e3f2fd')
-    sum_html+=sum_row('OTDR Status',rs,'#e3f2fd')
-    sum_html+=sum_row('Real Total',real_25,'#fff3e0')
-    sum_html+=sum_row('Real Status',rs,'#fff3e0')
+    sum_html+=sum_row('OTDR Total',ott_accu,'#e3f2fd')
+    sum_html+=sum_row('OTDR Status',os_,'#e3f2fd')
+    sum_html+=sum_row('Real Total',real_arr,'#fff3e0')
+    sum_html+=sum_row('Real Status',rs_status,'#fff3e0')
     sum_html+='</table>'
 
     sum_html+=f'<script>var SUM_DATA={sd_json};var NAO={nao_json};var ODR={odr_json};</script>'
@@ -376,8 +396,8 @@ def build_all(ds=None):
     sum_html+='</body></html>'
 
     # ── GENERATE DASHBOARD HTML ──
-    dash_html=_build_dashboard(sd, WK_ID, MN1, MN2, MN3, WK1, WK2, WK3, PROJECTS, oa, ot, rs, [[0]*TW for _ in range(N)], [[0]*TW for _ in range(N)],
-                               real_25, rs, sd['mta'], sd['mtf'], M1, M2, M3, am1, am2, am3, fm1, fm2, fm3, cr_total, _JS_BLOCK)
+    dash_html=_build_dashboard(sd, WK_ID, MN1, MN2, MN3, WK1, WK2, WK3, PROJECTS, oa, ot, os_, [[0]*TW for _ in range(N)], [[0]*TW for _ in range(N)],
+                               real_arr, rs_status, sd['mta'], sd['mtf'], M1, M2, M3, am1, am2, am3, fm1, fm2, fm3, cr_total, _JS_BLOCK)
 
     return sum_html, dash_html
 
