@@ -27,11 +27,8 @@ def sf_int(v):
     except: return 0
 
 def fmtv(v):
-    if v is None or v=='': return ''
-    if isinstance(v,(int,float)):
-        if v==0 and not isinstance(v,bool): return ''
-        return f'{v:,.0f}' if abs(v)>=1000 else str(int(v))
-    return str(v)
+    if v and isinstance(v,(int,float)) and round(v)!=0: return f'${round(v):,}'
+    return ''
 
 def normalize_pj(s):
     parts=s.strip().split()
@@ -444,15 +441,29 @@ window.onclick=function(e){if(e.target==document.getElementById("orderModal"))cl
 
 def _build_dashboard(sd, WK_ID, MN1, MN2, MN3, WK1, WK2, WK3, PROJECTS, oa, ot, os_, do_, dc_,
                      real_25, rs, mta, mtf, M1, M2, M3, am1, am2, am3, fm1, fm2, fm3, cr_total, JS):
-    N=len(PROJECTS); TW=WK1+WK2+WK3; os.stat=sd
+    N=len(PROJECTS); TW=WK1+WK2+WK3
     TMP=os.path.join(os.path.dirname(os.path.abspath(__file__)),'Penang_Chart_Dashboard_WK0630.html')
     with open(TMP,'r',encoding='utf-8') as f: html=f.read()
+    # Compute D.os from otdr_stat (25-element, extract weekly data)
+    os_arr=[]
+    for w in range(WK1):
+        idx=1+w
+        v=sd['otdr_stat'][idx] if idx<len(sd['otdr_stat']) else ''
+        os_arr.append(str(round(float(v))) if v!='' and v is not None else '')
+    for w in range(WK2):
+        idx=WK1+3+w
+        v=sd['otdr_stat'][idx] if idx<len(sd['otdr_stat']) else ''
+        os_arr.append(str(round(float(v))) if v!='' and v is not None else '')
+    for w in range(WK3):
+        idx=WK1+3+WK2+3+w
+        v=sd['otdr_stat'][idx] if idx<len(sd['otdr_stat']) else ''
+        os_arr.append(str(round(float(v))) if v!='' and v is not None else '')
     DAT=json.dumps({
         'pj':PROJECTS,'cr':sd['cr'],'nai':sd['nai'],'otdr':sd['otdr'],
         'ct':sd['cr_tot'],'nt':sd['nai_tot'],'ot':sd['otdr_tot'],
         'mfs':sd['mfs'],'mt':sd.get('mfs_tot',sd['mfs'][0] if sd['mfs'] else [0]*20),
         'mta':sd.get('mta',[0]*19),'mtf':sd.get('mtf',[0]*19),
-        'wk':WK_ID,'do':[[0]*TW for _ in range(N)],'dc':[[0]*TW for _ in range(N)],'os':['']*TW})
+        'wk':WK_ID,'do':[[0]*TW for _ in range(N)],'dc':[[0]*TW for _ in range(N)],'os':os_arr})
     html=re.sub(r'var D = \{.*?\};','var D = '+DAT+';',html,flags=re.DOTALL)
     html=html.replace('WK0629','WK'+WK_ID); html=html.replace('WK0630','WK'+WK_ID)
     html=html.replace('<div class="hb">WK'+WK_ID+'</div>',
