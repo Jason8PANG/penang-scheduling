@@ -1,5 +1,6 @@
-# Git ignore for Penang Scheduling Docker project
 __pycache__/
 *.pyc
 .env
 outputs/
+debug.log
+*.log
