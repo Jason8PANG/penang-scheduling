@@ -471,11 +471,11 @@ def _build_dashboard(sd, WK_ID, MN1, MN2, MN3, WK1, WK2, WK3, PROJECTS, oa, ot, 
         v=sd['otdr_stat'][idx] if idx<len(sd['otdr_stat']) else ''
         os_arr.append(str(round(float(v))) if v!='' and v is not None else '')
     for w in range(WK2):
-        idx=WK1+3+w
+        idx=1+WK1+3+w
         v=sd['otdr_stat'][idx] if idx<len(sd['otdr_stat']) else ''
         os_arr.append(str(round(float(v))) if v!='' and v is not None else '')
     for w in range(WK3):
-        idx=WK1+3+WK2+3+w
+        idx=1+WK1+3+WK2+3+w
         v=sd['otdr_stat'][idx] if idx<len(sd['otdr_stat']) else ''
         os_arr.append(str(round(float(v))) if v!='' and v is not None else '')
     DAT=json.dumps({
