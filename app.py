@@ -11,16 +11,21 @@ MON = {1:'January',2:'February',3:'March',4:'April',5:'May',6:'June',
 
 # ── DB helpers ──
 def get_latest_ds():
-    cur = get_conn(); cur.execute('SELECT DISTINCT Data_Source FROM covswo_data ORDER BY Data_Source DESC LIMIT 1')
-    r = cur.fetchone(); cur.close()
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute('SELECT DISTINCT Data_Source FROM covswo_data ORDER BY Data_Source DESC LIMIT 1')
+    r = cur.fetchone(); cur.close(); conn.close()
     return r[0] if r else None
 
 def get_conn():
     return pymysql.connect(**db_config.DB_CONFIG)
 
 def fetch_rows(ds):
-    cur = get_conn()
+    conn = get_conn()
+    cur = conn.cursor()
     cur.execute('SELECT * FROM covswo_data WHERE Data_Source=%s AND Source_Type=%s', (ds, 'Job'))
+    r = cur.fetchall(); cur.close(); conn.close()
+    return r
     r = cur.fetchall(); cur.close()
     return r
 
@@ -433,6 +438,25 @@ td,th{{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:mi
                 hx+=f'<td class="d" {s}>{fmtv(v)}</td>'
             else: hx+=f'<td class=d {s}>{fmtv(v)}</td>'
         return hx+'</tr>'
+    # Compute ott and real_25 for OTDR summary
+    ott=[0]*len(oa[0])
+    for j in range(len(oa[0])):
+        v=0
+        for p in PROJECTS:
+            d=otdr[p]
+            if j==0: v+=d[f'{M1}_pd']
+            elif 1<=j<=WK1: v+=d[M1][j-1]
+            elif j==WK1+1: v+=d[f'{M1}_adv']
+            elif WK1+3<=j<=WK1+2+WK2: v+=d[M2][j-(WK1+3)]
+            elif j==WK1+WK2+3: v+=d[f'{M2}_adv']
+            elif WK1+WK2+5<=j<=WK1+WK2+4+WK3: v+=d[M3][j-(WK1+WK2+5)]
+            elif j==WK1+WK2+WK3+5: v+=d[f'{M3}_adv']
+        ott[j]=sf_int(v)
+    real_25=['']*25
+    for w in range(WK1): v=sum(real[p][M1][w] for p in PROJECTS); real_25[w]=sf_int(v) if v else ''
+    for w in range(WK2): v=sum(real[p][M2][w] for p in PROJECTS); real_25[5+w]=sf_int(v) if v else ''
+    for w in range(WK3): v=sum(real[p][M3][w] for p in PROJECTS); real_25[11+w]=sf_int(v) if v else ''
+
     H+=sum_row('OTDR Total',ott,'#e3f2fd')
     H+=sum_row('Real Total',real_25,'#fff3e0')
     H+='</table></body></html>'
