@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Step 2: Read MySQL export → Build HTML Sum webpage"""
-import datetime, os, re, json, openpyxl, calendar, itertools, base64
-import pymysql, sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import datetime, os, re, json, openpyxl, calendar, itertools, base64, sys
 import db_config
 
 DIR = os.path.dirname(os.path.abspath(__file__))
