@@ -463,7 +463,7 @@ def build_all(ds=None):
             h+=f'<tr class=ttl><td class=pj>Total</td>'+''.join(f'<td class=d>{fmtv(v)}</td>' for v in tot)+'</tr></table>'
         return h
 
-    hdr=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1></div>'
+    hdr=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a></div>'
     H='<!DOCTYPE html><html lang=en><head><meta charset=UTF-8><title>Penang Scheduling WK{}</title><style>body{{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}}h1{{color:#1a237e;font-size:20px}}table{{border-collapse:collapse;margin-bottom:15px;box-shadow:0 1px 3px rgba(0,0,0,.1)}}td,th{{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}}.pj{{text-align:left;font-weight:600;background:#fff;min-width:140px}}.d{{background:#fff;min-width:50px}}.dc{{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}}.dc:hover{{background:#bbdefb}}.tt{{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}}.mh{{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}}.sh{{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}}.st{{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}}.pct{{color:#1565c0;font-weight:600}}.ttl td{{background:#e8eaf6;font-weight:700;color:#1a237e}}.btn{{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}}.hdr{{display:flex;align-items:center;margin-bottom:10px}}'.format(WK_ID)
 
     H+=hdr
@@ -634,6 +634,7 @@ td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:mid
 .btn{background:#1a237e;color:#fff;padding:6px 16px;border:0;border-radius:4px;cursor:pointer;font-size:12px}
 </style></head><body>
 <h1>Penang Production Scheduling &mdash; WK'''+WK_ID+''' Dashboard</h1>
+<div style="margin-bottom:15px"><a href="/sum" class=btn>📊 View Sum Table</a> <a href="/rebuild" class=btn>🔄 Refresh</a></div>
 <p style=color:#666>'''+datetime.datetime.now().strftime("%Y-%m-%d %H:%M")+''' | Data auto-refreshed from MySQL</p>
 <div class=chart-row>
 <div class=chart-box><canvas id=crChart></canvas></div>

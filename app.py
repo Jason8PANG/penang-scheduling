@@ -44,19 +44,11 @@ def ensure_built():
 
 @app.route('/')
 def index():
-    ds = cache['ds'] or 'N/A'
-    updated = cache['updated'].strftime('%Y-%m-%d %H:%M') if cache['updated'] else '—'
-    return f'''<html><head><meta charset=utf-8><title>Penang Scheduling</title>
-<style>body{{font-family:Segoe UI,sans-serif;margin:40px;background:#f5f5f5}}
-h1{{color:#1a237e}}a{{display:inline-block;padding:14px 28px;margin:10px;background:#1a237e;color:#fff;
-text-decoration:none;border-radius:6px;font-size:15px;font-weight:600}}
-a:hover{{background:#283593}}.info{{color:#666;margin:20px 0}}</style></head><body>
-<h1>Penang Production Scheduling</h1>
-<p class=info>Latest Data_Source: <b>{ds}</b> | Updated: {updated}</p>
-<a href="/sum">📊  Sum Table</a>
-<a href="/dashboard">📈  Dashboard</a>
-<a href="/rebuild">🔄  Force Rebuild</a>
-</body></html>'''
+    """Root redirects to Dashboard"""
+    with build_lock:
+        if cache['dash'] is None:
+            auto_build()
+    return cache.get('dash', '<h1>No data yet</h1><p>Try the rebuild button.</p>')
 
 @app.route('/sum')
 def sum_table():
