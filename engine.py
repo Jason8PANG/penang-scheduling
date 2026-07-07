@@ -254,7 +254,14 @@ def build_all(ds=None):
         for pi,p in enumerate(PROJECTS):
             d=o_dict[p]; md={}
             mths=[(M1,WK1),(M2,WK2),(M3,WK3)] if hm else [(f'{M1}_pd',),(f'{M2}_pd',),(f'{M3}_pd',)]
-            def dedup(lst): seen={}; [seen.__setitem__(o[0],[o[0],o[1],round(float(o[2] or 0),2),str(o[3] or '')[:10],str(o[4] or '')[:10],str(o[5] or '')[:10],str(o[6] or '')[:10],str(o[7] or '')[:10],str(o[8] or '')[:10]]) or seen[o[0]][2] or None for o in lst]; return list(seen.values())
+            def dedup(lst):
+                seen={}
+                for o in lst:
+                    if o[0] in seen:
+                        seen[o[0]][2] = round(float(seen[o[0]][2] or 0) + float(o[2] or 0), 2)
+                    else:
+                        seen[o[0]]=[o[0],o[1],round(float(o[2] or 0),2),str(o[3] or '')[:10],str(o[4] or '')[:10],str(o[5] or '')[:10],str(o[6] or '')[:10],str(o[7] or '')[:10],str(o[8] or '')[:10]]
+                return list(seen.values())
             for mk in mths:
                 if hm: mth,wks=mk[0],mk[1]; md[str(mth)]=[dedup(d[mth][wk]) for wk in range(wks)]
                 else: mk=mk[0]; md[mk]=dedup(d[mk])
@@ -339,7 +346,7 @@ def build_all(ds=None):
         else: hx+=f'<tr class=ttl><td class=pj>Total</td>'+''.join(f'<td class=d>{fmtv(v)}</td>' for v in tot)+'</tr></table>'
         return hx
 
-    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="900"><title>Penang WK{WK_ID}</title><script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.btn-grn{background:#2e7d32;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-grn:hover{background:#1b5e20}.btn-org{background:#e65100;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-org:hover{background:#bf360c}.hdr{display:flex;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
+    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="900"><title>Penang WK{WK_ID}</title><script src="/static/xlsx.full.min.js"></script><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.btn-grn{background:#2e7d32;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-grn:hover{background:#1b5e20}.btn-org{background:#e65100;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-org:hover{background:#bf360c}.hdr{display:flex;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
     sum_html+=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a><button class="btn-grn" onclick="exportSumExcel()">📥 Export Sum Excel</button><button class="btn-org" onclick="exportMySQL()">📤 MySQL Export</button><span id="sumCd" style="color:#999;font-size:11px;margin-left:8px">&#x23F1; <span id="scd">900</span>s</span></div>'
     sum_html+=f'<p style="color:#666">{now.strftime("%Y-%m-%d %H:%M")} | {MN1}({WK1}w)/{MN2}({WK2}w)/{MN3}({WK3}w)</p>'
     sum_html+='<div id="orderModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal()">&times;</span><span class="close" style="margin-right:30px;font-size:13px;font-weight:normal;cursor:pointer;color:#1565c0" onclick="exportModalExcel()">📥 Export Excel</span><div id="orderList"></div></div></div>'
@@ -397,18 +404,64 @@ def build_all(ds=None):
     sum_html+="""<script>
 // ====== Export SUM table to Excel ======
 function exportSumExcel(){
+  if(typeof XLSX==='undefined'){alert('Please wait for library to load');return;}
+  var d=SUM_DATA;
+  var WK1=d.WK1,WK2=d.WK2,WK3=d.WK3;
+  var mls=['July','August','September'];
+  var wks=[WK1,WK2,WK3];
   var wb=XLSX.utils.book_new();
-  var ws=XLSX.utils.aoa_to_sheet([['Penang Production Scheduling - WK"""+WK_ID+"""']]);
-  XLSX.utils.sheet_add_aoa(ws,[['Project Code','Pass Due','"""+MN1+""" W1','"""+MN1+""" W2','"""+MN1+""" W3','"""+MN1+""" W4','"""+MN1+""" W5','"""+MN1+""" Total','"""+MN2+""" W1','"""+MN2+""" W2','"""+MN2+""" W3','"""+MN2+""" W4','"""+MN2+""" Total','"""+MN3+""" W1','"""+MN3+""" W2','"""+MN3+""" W3','"""+MN3+""" W4','"""+MN3+""" Total']],{origin:'A2'});
-  var d=SUM_DATA;var rows=[];var tw="""+str(WK1+WK2+WK3)+""";var t1="""+str(WK1+1)+""";var t2="""+str(WK1+WK2+2)+""";var t3="""+str(WK1+WK2+WK3+3)+""";
-  for(var i=0;i<d.pj.length;i++){
-    var r=[d.pj[i]];var c=d.ct[i];r.push(c[0]||0);
-    for(var j=1;j<=tw;j++)r.push(c[j]||0);
-    rows.push(r);
+
+  function makeHeader(extra){
+    var h=['Project Code'];
+    if(extra==='pd')h.push('Pass Due');
+    else if(extra==='sh')h.push('Shipped');
+    for(var mi=0;mi<3;mi++){
+      for(var wi=1;wi<=wks[mi];wi++)h.push(mls[mi]+' W'+wi);
+      h.push(mls[mi]+' Total');
+    }
+    return h;
   }
-  rows.push(['Total',0]);for(var j=1;j<=tw;j++){var s=0;for(var i=0;i<d.pj.length;i++)s+=d.ct[i][j]||0;rows[rows.length-1].push(s);}
-  XLSX.utils.sheet_add_aoa(ws,rows,{origin:'A3'});
-  XLSX.utils.book_append_sheet(wb,ws,'CR');
+  function addSheet(name,data,extra,totData){
+    var h=makeHeader(extra);
+    var ws=XLSX.utils.aoa_to_sheet([h]);
+    for(var i=0;i<d.pj.length;i++){
+      var row=data[i];if(!row)continue;
+      var r=[d.pj[i]];
+      for(var j=0;j<row.length;j++)r.push(row[j]||0);
+      XLSX.utils.sheet_add_aoa(ws,[r],{origin:'A'+(i+2)});
+    }
+    if(totData&&totData.length){
+      var tr=['Total'];
+      for(var j=0;j<totData.length;j++)tr.push(totData[j]||0);
+      XLSX.utils.sheet_add_aoa(ws,[tr],{origin:'A'+(d.pj.length+2)});
+    }
+    XLSX.utils.book_append_sheet(wb,ws,name);
+  }
+
+  addSheet('CR',d.cr,'pd',d.cr_tot||d.ct);
+  addSheet('MFS',d.mfs,'',d.mfs_tot);
+  addSheet('NAI',d.nai,'sh',d.nai_tot);
+  // OTDR - special: each month has PD, W1..Wk, Adv, Total
+  (function(){
+    var h=['Project Code'];
+    for(var mi=0;mi<3;mi++){
+      h.push(mls[mi]+' PD');
+      for(var wi=1;wi<=wks[mi];wi++)h.push(mls[mi]+' W'+wi);
+      h.push(mls[mi]+' Adv');
+      h.push(mls[mi]+' Total');
+    }
+    var ws=XLSX.utils.aoa_to_sheet([h]);
+    for(var i=0;i<d.pj.length;i++){
+      var row=d.otdr[i];if(!row)continue;
+      var r=[d.pj[i]];
+      for(var j=0;j<row.length;j++)r.push(row[j]||0);
+      XLSX.utils.sheet_add_aoa(ws,[r],{origin:'A'+(i+2)});
+    }
+    var tr=['Total'];
+    for(var j=0;j<(d.otdr_tot||[]).length;j++)tr.push(d.otdr_tot[j]||0);
+    XLSX.utils.sheet_add_aoa(ws,[tr],{origin:'A'+(d.pj.length+2)});
+    XLSX.utils.book_append_sheet(wb,ws,'OTDR');
+  })();
   XLSX.writeFile(wb,'Penang_WK"""+WK_ID+"""_Export.xlsx');
 }
 // ====== Download MySQL Export ======
@@ -441,6 +494,9 @@ def _JS_BLOCK(m1):
  return """<script>
 var gPopupTitle='',gPopupCols=[],gPopupData=[];
 function buildOrdersHtml(list,pj,t,isMulti){
+  // Filter out zero-amount orders
+  list=list.filter(function(o){var off=isMulti?1:0;return(parseFloat(o[off+2])||0)>0;});
+  if(list.length===0){document.getElementById("orderList").innerHTML="<p style='color:#999'>No orders with amount</p>";document.getElementById("orderModal").style.display="block";return;}
   gPopupTitle=t;gPopupCols=['Order','Source_Number','Sales_amount','Request_Date','FK_date','Due_Date','Station','Exception'];
   var pc=isMulti?['Project']:[];gPopupCols=pc.concat(gPopupCols);
   var h="<h3 style='margin-top:0'>"+t+"</h3><table><thead><tr>"+gPopupCols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>';

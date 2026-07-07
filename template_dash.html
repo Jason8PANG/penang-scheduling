@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta http-equiv="refresh" content="30">
+<meta http-equiv="refresh" content="900">
 <title>Penang Production Dashboard WK0706</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
@@ -203,6 +203,6 @@ new Chart(document.getElementById('cHB'),{type:'bar',data:{labels:its.map(functi
     }ctx.restore();}}]
 });
 // ====== Auto-refresh countdown ======
-var _t=30,el=document.getElementById('cdn');
+var _t=900,el=document.getElementById('cdn');
 setInterval(function(){el.textContent=--_t;_t||(_t=30);},1000);
 </script></body></html>

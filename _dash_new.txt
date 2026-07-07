@@ -164,7 +164,7 @@ new Chart(document.getElementById('cHB'),{type:'bar',data:{labels:its.map(functi
     ctx.restore();}}]
 });
 // ====== Auto-refresh countdown ======
-var _t=30,el=document.getElementById('cdn');
+var _t=900,el=document.getElementById('cdn');
 setInterval(function(){el.textContent=--_t;_t||(_t=30);},1000);
 </script>"""
     dynamic_script = (dynamic_script

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Flask — dynamic Sum + Dashboard: direct DB query -> original UI"""
-import csv, io
+import csv, io, openpyxl
 from flask import Flask, Response
 from engine import build_all, conn_db, fetch_rows, get_latest_ds
 
