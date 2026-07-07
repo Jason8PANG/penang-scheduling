@@ -338,10 +338,10 @@ def build_all(ds=None):
         else: hx+=f'<tr class=ttl><td class=pj>Total</td>'+''.join(f'<td class=d>{fmtv(v)}</td>' for v in tot)+'</tr></table>'
         return hx
 
-    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="30"><title>Penang WK{WK_ID}</title><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.hdr{display:flex;align-items:center;margin-bottom:10px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
-    sum_html+=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a></div>'
+    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="30"><title>Penang WK{WK_ID}</title><script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.btn-grn{background:#2e7d32;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-grn:hover{background:#1b5e20}.btn-org{background:#e65100;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-org:hover{background:#bf360c}.hdr{display:flex;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
+    sum_html+=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a><button class="btn-grn" onclick="exportSumExcel()">📥 Export Sum Excel</button><button class="btn-org" onclick="exportMySQL()">📤 MySQL Export</button><span id="sumCd" style="color:#999;font-size:11px;margin-left:8px">&#x23F1; <span id="scd">30</span>s</span></div>'
     sum_html+=f'<p style="color:#666">{now.strftime("%Y-%m-%d %H:%M")} | {MN1}({WK1}w)/{MN2}({WK2}w)/{MN3}({WK3}w)</p>'
-    sum_html+='<div id="orderModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal()">&times;</span><div id="orderList"></div></div></div>'
+    sum_html+='<div id="orderModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal()">&times;</span><span class="close" style="margin-right:30px;font-size:13px;font-weight:normal;cursor:pointer;color:#1565c0" onclick="exportModalExcel()">📥 Export Excel</span><div id="orderList"></div></div></div>'
     sum_html+=tbl(f'Customer Request (WK{WK_ID})',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Pass Due',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ca,ct)
     sum_html+=tbl('Material FK status',1+WK1+1+WK2+1+WK3+1,[('Project code',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ma,mt_)
     sum_html+=tbl('NAI Production (Commit)',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Shipped',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],na,nt,clickable=True,nai_mode=True)
@@ -393,6 +393,47 @@ def build_all(ds=None):
 
     sum_html+=f'<script>var SUM_DATA={sd_json};var NAO={nao_json};var ODR={odr_json};</script>'
     sum_html+=_JS_BLOCK(M1)
+    sum_html+="""<script>
+// ====== Export SUM table to Excel ======
+function exportSumExcel(){
+  var wb=XLSX.utils.book_new();
+  var ws=XLSX.utils.aoa_to_sheet([['Penang Production Scheduling - WK"""+WK_ID+"""']]);
+  XLSX.utils.sheet_add_aoa(ws,[['Project Code','Pass Due','"""+MN1+""" W1','"""+MN1+""" W2','"""+MN1+""" W3','"""+MN1+""" W4','"""+MN1+""" W5','"""+MN1+""" Total','"""+MN2+""" W1','"""+MN2+""" W2','"""+MN2+""" W3','"""+MN2+""" W4','"""+MN2+""" Total','"""+MN3+""" W1','"""+MN3+""" W2','"""+MN3+""" W3','"""+MN3+""" W4','"""+MN3+""" Total']],{origin:'A2'});
+  var d=SUM_DATA;var rows=[];var tw="""+str(WK1+WK2+WK3)+""";var t1="""+str(WK1+1)+""";var t2="""+str(WK1+WK2+2)+""";var t3="""+str(WK1+WK2+WK3+3)+""";
+  for(var i=0;i<d.pj.length;i++){
+    var r=[d.pj[i]];var c=d.ct[i];r.push(c[0]||0);
+    for(var j=1;j<=tw;j++)r.push(c[j]||0);
+    rows.push(r);
+  }
+  rows.push(['Total',0]);for(var j=1;j<=tw;j++){var s=0;for(var i=0;i<d.pj.length;i++)s+=d.ct[i][j]||0;rows[rows.length-1].push(s);}
+  XLSX.utils.sheet_add_aoa(ws,rows,{origin:'A3'});
+  XLSX.utils.book_append_sheet(wb,ws,'CR');
+  XLSX.writeFile(wb,'Penang_WK"""+WK_ID+"""_Export.xlsx');
+}
+// ====== Download MySQL Export ======
+function exportMySQL(){
+  var csv='Project,Order,Due_Date,Request_Date,Sales_Amount,CR_Month,CR_WK,MFS_TYPE,MFS_MTH,MFS_WK,NAI_MTH,NAI_WK,OTDR_MTH,OTDR_WK,OTDR_ACCU_MTH,OTDR_ACCU_WK\\n';
+  for(var i=0;i<SUM_DATA.pj.length;i++){
+    var rows=ODR[String(i)]||[];
+    for(var j=0;j<rows.length;j++){
+      var r=rows[j];csv+='\"'+SUM_DATA.pj[i]+'\",\"'+r[2]+'\",\"'+r[6]+'\",\"'+r[7]+'\",'+r[10]+','+r[15]+','+r[16]+','+r[17]+','+r[18]+','+r[19]+','+r[20]+','+r[21]+','+r[22]+','+r[23]+','+r[24]+','+r[25]+'\\n';
+    }
+  }
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='MySQL_Export_WK"""+WK_ID+""".csv';a.click();
+}
+// ====== Export popup modal table to Excel ======
+function exportModalExcel(){
+  if(!window.gPopupData||!gPopupData.length)return;
+  if(typeof XLSX==='undefined'){alert('XLSX library not loaded');return;}
+  var wb=XLSX.utils.book_new();
+  var heads=gPopupCols.map(function(c){return c.replace('_',' ');});
+  var ws=XLSX.utils.aoa_to_sheet([heads].concat(gPopupData));
+  XLSX.utils.book_append_sheet(wb,ws,'Orders');
+  XLSX.writeFile(wb,'Orders_WK"""+WK_ID+"""_.xlsx');
+}
+// ====== Auto-refresh countdown ======
+var _st=30,el=document.getElementById('scd');setInterval(function(){el.textContent=--_st;_st||(_st=30);},1000);
+</script>"""
     sum_html+='</body></html>'
 
     # ── GENERATE DASHBOARD HTML ──
@@ -451,10 +492,12 @@ function showOrdersAll(mth,wk){
 }
 function exportPopup(){
   if(!gPopupData||gPopupData.length===0)return;
-  var BOM=String.fromCharCode(0xFEFF),NL=String.fromCharCode(10);
-  var csv=BOM+gPopupCols.join(",")+NL;
-  gPopupData.forEach(function(r){csv+=r.map(function(v){var s=String(v||"");if(s.indexOf(",")>=0||s.indexOf('"')>=0||s.indexOf(NL)>=0)s='"'+s.replace(/"/g,'""')+'"';return s;}).join(",")+NL;});
-  var b=new Blob([csv],{type:"text/csv;charset=utf-8"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="NAI_Orders_WK"+SUM_DATA.wk+".csv";a.click();
+  if(typeof XLSX==='undefined'){alert('XLSX library not loaded for export');return;}
+  var wb=XLSX.utils.book_new();
+  var heads=gPopupCols.map(function(c){return c.replace(/_/g,' ');});
+  var ws=XLSX.utils.aoa_to_sheet([heads].concat(gPopupData));
+  XLSX.utils.book_append_sheet(wb,ws,'Orders');
+  XLSX.writeFile(wb,'NAI_Orders_WK'+SUM_DATA.wk+'.xlsx');
 }
 window.onclick=function(e){if(e.target==document.getElementById("orderModal"))closeModal();};
 </script>"""
@@ -744,7 +787,55 @@ new Chart(document.getElementById('cHB'),{type:'bar',data:{labels:its.map(functi
     }
     ctx.restore();}}]
 });
+// ====== Auto-refresh countdown ======
+var _t=30,el=document.getElementById('cdn');
+setInterval(function(){el.textContent=--_t;_t||(_t=30);},1000);
 </script>"""
+    dynamic_script = (dynamic_script
+        .replace('%%DAT%%', DAT)
+        .replace('%%MON%%', mon_js)
+        .replace('%%M1_TOT_CT%%', str(m1_tot_ct))
+        .replace('%%M2_TOT_CT%%', str(m2_tot_ct))
+        .replace('%%M3_TOT_CT%%', str(m3_tot_ct))
+        .replace('%%M1_TOT_MT%%', str(m1_tot_mt))
+        .replace('%%M2_TOT_MT%%', str(m2_tot_mt))
+        .replace('%%M3_TOT_MT%%', str(m3_tot_mt))
+        .replace('%%CR_W1%%', cr_m_wks)
+        .replace('%%CR_W2%%', cr_m_wks2)
+        .replace('%%CR_W3%%', cr_m_wks3)
+        .replace('%%FE_W1%%', fe_m_wks)
+        .replace('%%FE_W2%%', fe_m_wks2)
+        .replace('%%FE_W3%%', fe_m_wks3)
+        .replace('%%AC_W1%%', ac_m_wks)
+        .replace('%%AC_W2%%', ac_m_wks2)
+        .replace('%%AC_W3%%', ac_m_wks3)
+        .replace('%%NA_W1%%', na_m_wks)
+        .replace('%%NA_W2%%', na_m_wks2)
+        .replace('%%NA_W3%%', na_m_wks3)
+        .replace('%%WK1%%', wk_arr1)
+        .replace('%%WK2%%', wk_arr2)
+        .replace('%%WK3%%', wk_arr3)
+        .replace('%%WKL%%', wkl_js)
+        .replace('%%M1L%%', m1l)
+        .replace('%%M2L%%', m2l)
+        .replace('%%M3L%%', m3l)
+        .replace('%%M1_OS_END%%', str(m1_os_end))
+        .replace('%%M2_OS_END%%', str(m2_os_end))
+        .replace('%%M3_OS_END%%', str(m3_os_end))
+        .replace('%%WK1N%%', str(WK1))
+        .replace('%%WK2N%%', str(WK2))
+        .replace('%%WK3N%%', str(WK3))
+        .replace('%%M1_THRESH%%', str(m1_thresh))
+        .replace('%%M2_THRESH%%', str(m2_thresh))
+        .replace('%%M1_WK_OT%%', str(m1_wk_ot))
+        .replace('%%M2_WK_OT%%', str(m2_wk_ot))
+        .replace('%%M3_WK_OT%%', str(m3_wk_ot))
+        .replace('%%M1_WK_CT%%', str(m1_wk_ct))
+        .replace('%%M2_WK_CT%%', str(m2_wk_ct))
+        .replace('%%M3_WK_CT%%', str(m3_wk_ct))
+        .replace('%%OSI%%', osi_js)
+    )
+
     dynamic_script = (dynamic_script
         .replace('%%DAT%%', DAT)
         .replace('%%MON%%', mon_js)
