@@ -4,3 +4,9 @@ __pycache__/
 outputs/
 debug.log
 *.log
+
+# Dev / temporary helper files
+__*.html
+__*.js
+_*.py
+nul

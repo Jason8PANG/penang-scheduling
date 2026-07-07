@@ -55,7 +55,7 @@ def fetch_rows(ds):
     return r
 
 def real_now():
-    return datetime.datetime(2026,7,6,14,53,0)
+    return datetime.datetime.now()
 
 # ── WIP loading (cached) ──
 _WIP=None
@@ -332,13 +332,13 @@ def build_all(ds=None):
                 elif ci==WK1+WK2+WK3+3: m_,w_=str(M3),-1
                 else: m_,w_=None,None
                 if m_ and w_ is not None: hx+=f'<td class="d dc" onclick="showOrdersAll({m_},{w_})">{fmtv(v)}</td>'
-                elif m_=='sh': hx+=f'<td class="d dc" onclick="showOrdersAll("sh",-1)">{fmtv(v)}</td>'
+                elif m_=='sh': hx+=f"<td class=\"d dc\" onclick='showOrdersAll(\"sh\",-1)'>{fmtv(v)}</td>"
                 else: hx+=f'<td class="d">{fmtv(v)}</td>'
             hx+='</tr></table>'
         else: hx+=f'<tr class=ttl><td class=pj>Total</td>'+''.join(f'<td class=d>{fmtv(v)}</td>' for v in tot)+'</tr></table>'
         return hx
 
-    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Penang WK{WK_ID}</title><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.hdr{display:flex;align-items:center;margin-bottom:10px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
+    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="30"><title>Penang WK{WK_ID}</title><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.hdr{display:flex;align-items:center;margin-bottom:10px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
     sum_html+=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a></div>'
     sum_html+=f'<p style="color:#666">{now.strftime("%Y-%m-%d %H:%M")} | {MN1}({WK1}w)/{MN2}({WK2}w)/{MN3}({WK3}w)</p>'
     sum_html+='<div id="orderModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal()">&times;</span><div id="orderList"></div></div></div>'
@@ -403,7 +403,7 @@ def build_all(ds=None):
 
 
 def _JS_BLOCK(m1):
- return '''<script>
+ return """<script>
 var gPopupTitle='',gPopupCols=[],gPopupData=[];
 function buildOrdersHtml(list,pj,t,isMulti){
   gPopupTitle=t;gPopupCols=['Order','Source_Number','Request_Date','Due_Date','Sales_amount','Station','Exception'];
@@ -432,7 +432,7 @@ function showOTDR(pi,mkey){
   if(!orders||!orders[mkey]||orders[mkey].length===0){document.getElementById("orderList").innerHTML="<p style='color:#999'>No order details available</p>";document.getElementById("orderModal").style.display="block";return;}
   var pj=SUM_DATA.pj[pi];var t=pj+" - OTDR "+mkey;buildOrdersHtml(orders[mkey],pj,t,false);
 }
-function showOTDRAll(){var mkey='''+str(m1)+'''_pd',list=[];for(var pi=0;pi<SUM_DATA.pj.length;pi++){var o=ODR[String(pi)];if(!o||!o[mkey])continue;for(var i=0;i<o[mkey].length;i++)list.push([SUM_DATA.pj[pi]].concat(o[mkey][i]));}
+function showOTDRAll(){var mkey='""" + str(m1) + """_pd',list=[];for(var pi=0;pi<SUM_DATA.pj.length;pi++){var o=ODR[String(pi)];if(!o||!o[mkey])continue;for(var i=0;i<o[mkey].length;i++)list.push([SUM_DATA.pj[pi]].concat(o[mkey][i]));}
   if(list.length===0){document.getElementById("orderList").innerHTML="<p style='color:#999'>No order details available</p>";document.getElementById("orderModal").style.display="block";return;}
   buildOrdersHtml(list,"","All Projects - OTDR "+mkey,true);
 }
@@ -457,12 +457,12 @@ function exportPopup(){
   var b=new Blob([csv],{type:"text/csv;charset=utf-8"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="NAI_Orders_WK"+SUM_DATA.wk+".csv";a.click();
 }
 window.onclick=function(e){if(e.target==document.getElementById("orderModal"))closeModal();};
-</script>'''
+</script>"""
 
 def _build_dashboard(sd, WK_ID, MN1, MN2, MN3, WK1, WK2, WK3, PROJECTS, oa, ot, os_, do_, dc_,
                      real_25, rs, mta, mtf, M1, M2, M3, am1, am2, am3, fm1, fm2, fm3, cr_total, JS):
     N=len(PROJECTS); TW=WK1+WK2+WK3
-    TMP=os.path.join(os.path.dirname(os.path.abspath(__file__)),'Penang_Chart_Dashboard_WK0630.html')
+    TMP=os.path.join(os.path.dirname(os.path.abspath(__file__)),'template_dash.html')
     with open(TMP,'r',encoding='utf-8') as f: html=f.read()
     # Compute D.os from otdr_stat (25-element, extract weekly data)
     os_arr=[]
@@ -484,8 +484,540 @@ def _build_dashboard(sd, WK_ID, MN1, MN2, MN3, WK1, WK2, WK3, PROJECTS, oa, ot, 
         'mfs':sd['mfs'],'mt':sd.get('mfs_tot',sd['mfs'][0] if sd['mfs'] else [0]*20),
         'mta':sd.get('mta',[0]*19),'mtf':sd.get('mtf',[0]*19),
         'wk':WK_ID,'do':[[0]*TW for _ in range(N)],'dc':[[0]*TW for _ in range(N)],'os':os_arr})
-    html=re.sub(r'var D = \{.*?\};','var D = '+DAT+';',html,flags=re.DOTALL)
-    html=html.replace('WK0629','WK'+WK_ID); html=html.replace('WK0630','WK'+WK_ID)
+
+    # ── Dynamic index calculations ──
+    # ct/nt array (per-project totals): [pd, M1_wks..., M1_total, M2_wks..., M2_total, M3_wks..., M3_total]
+    m1_tot_ct = WK1 + 1
+    m2_tot_ct = WK1 + WK2 + 2
+    m3_tot_ct = WK1 + WK2 + WK3 + 3
+    m1_wk_ct = 1           # ct[1]..ct[WK1]
+    m2_wk_ct = WK1 + 2     # ct[WK1+2]..ct[WK1+1+WK2]
+    m3_wk_ct = WK1 + WK2 + 3  # ct[WK1+WK2+3]..ct[WK1+WK2+WK3+2]
+
+    # mtf/mta (19-element hardcoded in engine.py): [M1_wks..., M1_total(5), M2_wks..., M2_total(12), M3_wks..., M3_total(18)]
+    # Weekly positions within mtf/mta: M1=0.., M2=6.., M3=13..
+    m1_wk_mt = 0
+    m2_wk_mt = 6
+    m3_wk_mt = 13
+    m1_tot_mt = 5
+    m2_tot_mt = 12
+    m3_tot_mt = 18
+
+    # OTDR per-project array: [M1_PD, M1_wks(1..WK1), M1_Adv(WK1+1), M1_Tot(WK1+2), M2_PD(WK1+3), M2_wks(WK1+4..), M2_Adv, M2_Tot, M3_PD, M3_wks, M3_Adv, M3_Tot]
+    m1_wk_ot = 1
+    m2_wk_ot = WK1 + 4
+    m3_wk_ot = WK1 + WK2 + 7
+
+    # Build weekly label arrays for JS
+    wk_labels_m1 = ','.join(f"'{w}'" for w in [f'W{i+1}' for i in range(WK1)])
+    wk_labels_m2 = ','.join(f"'{w}'" for w in [f'W{i+1}' for i in range(WK2)])
+    wk_labels_m3 = ','.join(f"'{w}'" for w in [f'W{i+1}' for i in range(WK3)])
+
+    # Build ct weekly reference arrays for JS
+    ct_m1_wks = ','.join(str(i) for i in range(m1_wk_ct, m1_wk_ct + WK1))
+    ct_m2_wks = ','.join(str(i) for i in range(m2_wk_ct, m2_wk_ct + WK2))
+    ct_m3_wks = ','.join(str(i) for i in range(m3_wk_ct, m3_wk_ct + WK3))
+
+    # Build mtf/mta weekly reference arrays
+    mt_m1_wks = ','.join(str(i) for i in range(m1_wk_mt, m1_wk_mt + WK1))
+    mt_m2_wks = ','.join(str(i) for i in range(m2_wk_mt, m2_wk_mt + WK2))
+    mt_m3_wks = ','.join(str(i) for i in range(m3_wk_mt, m3_wk_mt + WK3))
+
+    # OTDR osi indices into D.os (flat 0..WK1+WK2+WK3-1)
+    osi_js = ','.join(str(i) for i in range(TW))
+
+    # Month abbreviation labels (first 3 chars)
+    m1l = MN1[:3]; m2l = MN2[:3]; m3l = MN3[:3]
+
+    # Full OTDR week label array
+    wkl_js = wk_labels_m1 + ',' + wk_labels_m2 + ',' + wk_labels_m3
+
+    # Month positions for OTDR chart (indices into the flat os/wkl arrays)
+    m1_os_end = WK1 - 1
+    m2_os_end = WK1 + WK2 - 1
+    m3_os_end = TW - 1
+
+    # OTDR detail view index ranges (for per-project drill-down)
+    # In detail: wc indexes into D.otdr[i], cc indexes into D.cr[i]
+    # M1: wc = 1 + w (0..WK1-1), cc = 1 + w (0..WK1-1)
+    # M2: wc = WK1+4 + w (0..WK2-1), cc = WK1+2 + w (0..WK2-1)
+    # M3: wc = WK1+WK2+7 + w (0..WK3-1), cc = WK1+WK2+3 + w (0..WK3-1)
+    # threshold variables for JS if-else
+    m1_thresh = WK1           # if oW < WK1 → M1
+    m2_thresh = WK1 + WK2     # if oW < WK1+WK2 → M2
+
+    # ── Dynamic script builder ──
+    # Helper: generate weekly sub-array for ct/nt: "[D.ct[a], D.ct[b], ...]"
+    def wk_ct_arr(prefix, indices_str):
+        parts = indices_str.split(',')
+        return '[' + ','.join(f'D.{prefix}[{i}]' for i in parts) + ']'
+
+    # Chart 1 data
+    cr_m_wks = wk_ct_arr('ct', ct_m1_wks)
+    fe_m_wks = wk_ct_arr('mtf', mt_m1_wks)
+    ac_m_wks = wk_ct_arr('mta', mt_m1_wks)
+    cr_m_wks2 = wk_ct_arr('ct', ct_m2_wks)
+    fe_m_wks2 = wk_ct_arr('mtf', mt_m2_wks)
+    ac_m_wks2 = wk_ct_arr('mta', mt_m2_wks)
+    cr_m_wks3 = wk_ct_arr('ct', ct_m3_wks)
+    fe_m_wks3 = wk_ct_arr('mtf', mt_m3_wks)
+    ac_m_wks3 = wk_ct_arr('mta', mt_m3_wks)
+
+    # Chart 2 data (NAI)
+    na_m_wks = wk_ct_arr('nt', ct_m1_wks)
+    na_m_wks2 = wk_ct_arr('nt', ct_m2_wks)
+    na_m_wks3 = wk_ct_arr('nt', ct_m3_wks)
+
+    # Month labels for Chart 1 & 2
+    mon_js = f"['{m1l}','{m2l}','{m3l}']"
+
+    # W5/W6/week label arrays
+    wk_arr1 = '[' + wk_labels_m1 + ']'
+    wk_arr2 = '[' + wk_labels_m2 + ']'
+    wk_arr3 = '[' + wk_labels_m3 + ']'
+
+    # Chart 4: per-project totals
+    # cr[i][m1_tot_ct] + cr[i][m2_tot_ct] + cr[i][m3_tot_ct]
+
+    dynamic_script = """<script>
+var D = %%DAT%%;
+var P=D.pj,W5=%%WK1%%,W6=%%WK2%%,W7=%%WK3%%,MON=%%MON%%;
+function fn(v){if(!v||isNaN(v))return'';return v.toLocaleString();}
+
+// ========== CHART 1: Customer Request + FK Status ==========
+var cM='m',cI=0;
+var d1={cr:{m:[D.ct[%%M1_TOT_CT%%],D.ct[%%M2_TOT_CT%%],D.ct[%%M3_TOT_CT%%]],w:[%%CR_W1%%,%%CR_W2%%,%%CR_W3%%]},
+        fe:{m:[D.mtf[%%M1_TOT_MT%%],D.mtf[%%M2_TOT_MT%%],D.mtf[%%M3_TOT_MT%%]],w:[%%FE_W1%%,%%FE_W2%%,%%FE_W3%%]},
+        ac:{m:[D.mta[%%M1_TOT_MT%%],D.mta[%%M2_TOT_MT%%],D.mta[%%M3_TOT_MT%%]],w:[%%AC_W1%%,%%AC_W2%%,%%AC_W3%%]}};
+function draw1(){
+  document.getElementById('bCR').style.display=cM==='w'?'inline':'none';
+  Chart.getChart('cCR')&&Chart.getChart('cCR').destroy();
+  var lb=cM==='m'?MON:(cI===0?W5:cI===1?W6:W7);
+  var cr=cM==='m'?d1.cr.m:d1.cr.w[cI];
+  var fe=cM==='m'?d1.fe.m:d1.fe.w[cI];
+  var ac=cM==='m'?d1.ac.m:d1.ac.w[cI];
+  new Chart(document.getElementById('cCR'),{type:'bar',data:{labels:lb,datasets:[
+    {label:'CR',data:cr,backgroundColor:'#1a237e'},
+    {label:'Forecast',data:fe,backgroundColor:'#fdd835',stack:'x'},
+    {label:'Act',data:ac,backgroundColor:'#43a047',stack:'x'}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',align:'end',labels:{boxWidth:12,font:{size:10},padding:6,usePointStyle:true}},
+      tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+fn(c.parsed.y);}}}},
+    scales:{x:{grid:{display:false}},y:{beginAtZero:true,display:false,grace:'10%'}}},
+    plugins:[{id:'l1',afterDraw:function(ch){
+      var ctx=ch.ctx;ctx.save();
+      var m0=ch.getDatasetMeta(0);if(m0.data)for(var i=0;i<m0.data.length;i++){var t=cr[i];if(t>0){ctx.textAlign='center';ctx.textBaseline='bottom';ctx.font='bold 10px Segoe UI';ctx.fillStyle='#1a237e';ctx.fillText(fn(t),m0.data[i].x,Math.max(m0.data[i].y-4,10));}}
+      var vf=ch.isDatasetVisible(1),va=ch.isDatasetVisible(2);
+      var m1=ch.getDatasetMeta(1),m2=ch.getDatasetMeta(2);
+      for(var i=0;i<cr.length;i++){
+        var to=0,px=0,py=0;
+        if(vf&&va){to=(fe[i]||0)+(ac[i]||0);if(m2.data&&m2.data[i]){px=m2.data[i].x;py=m2.data[i].y;}}
+        else if(vf){to=fe[i]||0;if(m1.data&&m1.data[i]){px=m1.data[i].x;py=m1.data[i].y;}}
+        else if(va){to=ac[i]||0;if(m2.data&&m2.data[i]){px=m2.data[i].x;py=m2.data[i].y;}}
+        if(to>0){ctx.textAlign='center';ctx.textBaseline='bottom';ctx.font='bold 10px Segoe UI';ctx.fillStyle='#333';ctx.fillText(fn(to),px,Math.max(py-4,10));}}
+      ctx.restore();}}]
+  });
+}
+document.getElementById('cCR').onclick=function(e){
+  var c=Chart.getChart('cCR');if(!c||cM!=='m')return;
+  var a=c.getElementsAtEventForMode(e,'index',{intersect:true},true);
+  if(a.length){cI=a[0].index;cM='w';draw1();}};
+document.getElementById('bCR').onclick=function(){cM='m';draw1();};
+draw1();
+
+// ========== CHART 2: Customer Request + NAI Production Commitment ==========
+var nM='m',nI=0;
+var d2={cr:{m:[D.ct[%%M1_TOT_CT%%],D.ct[%%M2_TOT_CT%%],D.ct[%%M3_TOT_CT%%]],w:[%%CR_W1%%,%%CR_W2%%,%%CR_W3%%]},
+        na:{m:[D.nt[%%M1_TOT_CT%%],D.nt[%%M2_TOT_CT%%],D.nt[%%M3_TOT_CT%%]],w:[%%NA_W1%%,%%NA_W2%%,%%NA_W3%%]}};
+function draw2(){
+  document.getElementById('bNAI').style.display=nM==='w'?'inline':'none';
+  Chart.getChart('cNAI')&&Chart.getChart('cNAI').destroy();
+  var lb=nM==='m'?MON:(nI===0?W5:nI===1?W6:W7);
+  var cr=nM==='m'?d2.cr.m:d2.cr.w[nI];
+  var na=nM==='m'?d2.na.m:d2.na.w[nI];
+  new Chart(document.getElementById('cNAI'),{type:'bar',data:{labels:lb,datasets:[
+    {label:'CR',data:cr,backgroundColor:'#1a237e'},
+    {label:'NAI',data:na,backgroundColor:'#43a047'}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+fn(c.parsed.y);}}}},
+    scales:{x:{grid:{display:false}},y:{beginAtZero:true,display:false,grace:'10%'}}},
+    plugins:[{id:'l2',afterDraw:function(ch){
+      var ctx=ch.ctx;ctx.save();
+      for(var di=0;di<2;di++){
+        var m=ch.getDatasetMeta(di);if(!m.data)continue;
+        var dd=di===0?cr:na;var cl=di===0?'#1a237e':'#2e7d32';
+        for(var i=0;i<m.data.length;i++){var t=dd[i];if(t>0){ctx.textAlign='center';ctx.textBaseline='bottom';ctx.font='bold 10px Segoe UI';ctx.fillStyle=cl;ctx.fillText(fn(t),m.data[i].x,Math.max(m.data[i].y-4,10));}}
+      }
+      ctx.restore();}}]
+  });
+}
+document.getElementById('cNAI').onclick=function(e){
+  var c=Chart.getChart('cNAI');if(!c||nM!=='m')return;
+  var a=c.getElementsAtEventForMode(e,'index',{intersect:true},true);
+  if(a.length){nI=a[0].index;nM='w';draw2();}};
+document.getElementById('bNAI').onclick=function(){nM='m';draw2();};
+draw2();
+
+// ========== CHART 3: OTDR Status % ==========
+var wkl=[%%WKL%%];
+var mthPos=[{l:'%%M1L%%',s:0,e:%%M1_OS_END%%},{l:'%%M2L%%',s:%%WK1N%%,e:%%M2_OS_END%%},{l:'%%M3L%%',s:%%WK1N%%+%%WK2N%%,e:%%M3_OS_END%%}];
+var osi=[%%OSI%%];
+var oV='o',oW=0;
+var wp=osi.map(function(i){var n=parseInt(D.os[i]);return isNaN(n)?0:n;});
+
+var mthPlugin={id:'mth',afterDraw:function(ch){
+  var ctx=ch.ctx;var chartArea=ch.chartArea;
+  ctx.save();ctx.font='bold 10px Segoe UI';ctx.fillStyle='#333';ctx.textAlign='center';
+  var xScale=ch.scales.x;
+  for(var m=0;m<mthPos.length;m++){
+    var mp=mthPos[m];
+    var x1=xScale.getPixelForValue(mp.s);
+    var x2=xScale.getPixelForValue(mp.e);
+    ctx.fillText(mp.l,(x1+x2)/2,chartArea.bottom+30);
+  }
+  ctx.restore();}};
+
+function draw3(){
+  document.getElementById('bOS').style.display=oV==='d'?'inline':'none';
+  Chart.getChart('cOS')&&Chart.getChart('cOS').destroy();
+  if(oV==='o'){
+    var bc=wp.map(function(v){return v>=90?'#2e7d32':v>=70?'#f57c00':'#e53935';});
+    new Chart(document.getElementById('cOS'),{type:'bar',data:{labels:wkl,datasets:[{data:wp,backgroundColor:bc}]},
+      options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:20,bottom:25}},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y+'%';}}}},
+        scales:{y:{max:100,grace:'10%',ticks:{callback:function(v){return v+'%';},font:{size:10}}},
+                x:{ticks:{maxRotation:0,autoSkip:false,font:{size:9}}}}},
+      plugins:[mthPlugin,{id:'l3',afterDraw:function(ch){
+        var ctx=ch.ctx;ctx.save();var m=ch.getDatasetMeta(0);
+        if(m.data)for(var i=0;i<m.data.length;i++){var t=wp[i];if(t>0){ctx.textAlign='center';ctx.textBaseline='bottom';ctx.font='bold 10px Segoe UI';ctx.fillStyle='#333';ctx.fillText(t+'%',m.data[i].x,Math.max(m.data[i].y-4,12));}}
+        ctx.restore();}}]
+    });
+  } else {
+    var wc,cc;
+    if(oW<%%M1_THRESH%%){wc=%%M1_WK_OT%%+oW;cc=%%M1_WK_CT%%+oW;}
+    else if(oW<%%M2_THRESH%%){wc=%%M2_WK_OT%%+(oW-%%M1_THRESH%%);cc=%%M2_WK_CT%%+(oW-%%M1_THRESH%%);}
+    else{wc=%%M3_WK_OT%%+(oW-%%M2_THRESH%%);cc=%%M3_WK_CT%%+(oW-%%M2_THRESH%%);}
+    var pd=[];
+    for(var i=0;i<P.length;i++){
+      var wa=D.otdr[i]?D.otdr[i][wc]||0:0;
+      var ca=D.cr[i]?D.cr[i][cc]||0:0;
+      var p=ca>0?Math.min(Math.round(wa/ca*100),100):(wa>0?100:0);
+      if(wa+ca>0)pd.push({l:P[i],p:p});
+    }
+    pd.sort(function(a,b){return b.p-a.p;});
+    new Chart(document.getElementById('cOS'),{type:'bar',data:{labels:pd.map(function(x){return x.l;}),
+      datasets:[{data:pd.map(function(x){return x.p;}),backgroundColor:pd.map(function(x){return x.p>=90?'#2e7d32':x.p>=70?'#f57c00':'#e53935';})}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y+'%';}}}},
+        scales:{x:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%';}}},y:{grid:{display:false}}}},
+      plugins:[{id:'l3d',afterDraw:function(ch){
+        var ctx=ch.ctx;ctx.save();var m=ch.getDatasetMeta(0);
+        if(m.data)for(var i=0;i<m.data.length;i++){var t=pd[i].p;if(t>0){ctx.textAlign='right';ctx.textBaseline='middle';ctx.font='bold 11px Segoe UI';ctx.fillStyle='#1a237e';ctx.fillText(t+'%',m.data[i].x-4,m.data[i].y);}}
+        ctx.restore();}}]})
+  }
+}
+document.getElementById('cOS').onclick=function(e){
+  var c=Chart.getChart('cOS');if(!c||oV!=='o')return;
+  var a=c.getElementsAtEventForMode(e,'index',{intersect:true},true);
+  if(a.length){oW=a[0].index;oV='d';draw3();}};
+document.getElementById('bOS').onclick=function(){oV='o';draw3();};
+draw3();
+
+// ========== CHART 4: Customer Request + NAI Production Commitment by Project ==========
+var its=[];
+for(var i=0;i<P.length;i++){
+  var c=D.cr[i][%%M1_TOT_CT%%]+D.cr[i][%%M2_TOT_CT%%]+D.cr[i][%%M3_TOT_CT%%];
+  var n=D.nai[i][%%M1_TOT_CT%%]+D.nai[i][%%M2_TOT_CT%%]+D.nai[i][%%M3_TOT_CT%%];
+  if(c+n>0)its.push({l:P[i],cr:c,nai:n});}
+its.sort(function(a,b){return(b.cr+b.nai)-(a.cr+a.nai);});
+new Chart(document.getElementById('cHB'),{type:'bar',data:{labels:its.map(function(x){return x.l;}),datasets:[
+  {label:'CR',backgroundColor:'#1a237e',data:its.map(function(x){return x.cr;})},
+  {label:'NAI',backgroundColor:'#43a047',data:its.map(function(x){return x.nai;})}
+]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+fn(c.parsed.x);}}}},
+  scales:{x:{beginAtZero:true,grace:'15%',ticks:{callback:function(v){return'$'+(v/1000).toFixed(0)+'K';},font:{size:9}}},y:{grid:{display:false},ticks:{font:{size:10}}}}},
+  plugins:[{id:'l4',afterDraw:function(ch){
+    var ctx=ch.ctx;ctx.save();var m0=ch.getDatasetMeta(0),m1=ch.getDatasetMeta(1);
+    if(m0.data)for(var i=0;i<its.length;i++){
+      if(its[i].cr>0){var x0=ch.scales.x.getPixelForValue(its[i].cr);ctx.textAlign='left';ctx.textBaseline='middle';ctx.font='bold 10px Segoe UI';ctx.fillStyle='#1a237e';ctx.fillText(fn(its[i].cr),x0+3,m0.data[i].y);}
+      if(its[i].nai>0){var x1=ch.scales.x.getPixelForValue(its[i].nai);ctx.textAlign='left';ctx.textBaseline='middle';ctx.font='bold 10px Segoe UI';ctx.fillStyle='#2e7d32';ctx.fillText(fn(its[i].nai),x1+3,m1.data[i].y);}
+    }
+    ctx.restore();}}]
+});
+</script>"""
+    dynamic_script = (dynamic_script
+        .replace('%%DAT%%', DAT)
+        .replace('%%MON%%', mon_js)
+        .replace('%%M1_TOT_CT%%', str(m1_tot_ct))
+        .replace('%%M2_TOT_CT%%', str(m2_tot_ct))
+        .replace('%%M3_TOT_CT%%', str(m3_tot_ct))
+        .replace('%%M1_TOT_MT%%', str(m1_tot_mt))
+        .replace('%%M2_TOT_MT%%', str(m2_tot_mt))
+        .replace('%%M3_TOT_MT%%', str(m3_tot_mt))
+        .replace('%%CR_W1%%', cr_m_wks)
+        .replace('%%CR_W2%%', cr_m_wks2)
+        .replace('%%CR_W3%%', cr_m_wks3)
+        .replace('%%FE_W1%%', fe_m_wks)
+        .replace('%%FE_W2%%', fe_m_wks2)
+        .replace('%%FE_W3%%', fe_m_wks3)
+        .replace('%%AC_W1%%', ac_m_wks)
+        .replace('%%AC_W2%%', ac_m_wks2)
+        .replace('%%AC_W3%%', ac_m_wks3)
+        .replace('%%NA_W1%%', na_m_wks)
+        .replace('%%NA_W2%%', na_m_wks2)
+        .replace('%%NA_W3%%', na_m_wks3)
+        .replace('%%WK1%%', wk_arr1)
+        .replace('%%WK2%%', wk_arr2)
+        .replace('%%WK3%%', wk_arr3)
+        .replace('%%WKL%%', wkl_js)
+        .replace('%%M1L%%', m1l)
+        .replace('%%M2L%%', m2l)
+        .replace('%%M3L%%', m3l)
+        .replace('%%M1_OS_END%%', str(m1_os_end))
+        .replace('%%M2_OS_END%%', str(m2_os_end))
+        .replace('%%M3_OS_END%%', str(m3_os_end))
+        .replace('%%WK1N%%', str(WK1))
+        .replace('%%WK2N%%', str(WK2))
+        .replace('%%WK3N%%', str(WK3))
+        .replace('%%M1_THRESH%%', str(m1_thresh))
+        .replace('%%M2_THRESH%%', str(m2_thresh))
+        .replace('%%M1_WK_OT%%', str(m1_wk_ot))
+        .replace('%%M2_WK_OT%%', str(m2_wk_ot))
+        .replace('%%M3_WK_OT%%', str(m3_wk_ot))
+        .replace('%%M1_WK_CT%%', str(m1_wk_ct))
+        .replace('%%M2_WK_CT%%', str(m2_wk_ct))
+        .replace('%%M3_WK_CT%%', str(m3_wk_ct))
+        .replace('%%OSI%%', osi_js)
+    )
+
+    dynamic_script = (dynamic_script
+        .replace('%%DAT%%', DAT)
+        .replace('%%MON%%', mon_js)
+        .replace('%%M1_TOT_CT%%', str(m1_tot_ct))
+        .replace('%%M2_TOT_CT%%', str(m2_tot_ct))
+        .replace('%%M3_TOT_CT%%', str(m3_tot_ct))
+        .replace('%%M1_TOT_MT%%', str(m1_tot_mt))
+        .replace('%%M2_TOT_MT%%', str(m2_tot_mt))
+        .replace('%%M3_TOT_MT%%', str(m3_tot_mt))
+        .replace('%%CR_W1%%', cr_m_wks)
+        .replace('%%CR_W2%%', cr_m_wks2)
+        .replace('%%CR_W3%%', cr_m_wks3)
+        .replace('%%FE_W1%%', fe_m_wks)
+        .replace('%%FE_W2%%', fe_m_wks2)
+        .replace('%%FE_W3%%', fe_m_wks3)
+        .replace('%%AC_W1%%', ac_m_wks)
+        .replace('%%AC_W2%%', ac_m_wks2)
+        .replace('%%AC_W3%%', ac_m_wks3)
+        .replace('%%NA_W1%%', na_m_wks)
+        .replace('%%NA_W2%%', na_m_wks2)
+        .replace('%%NA_W3%%', na_m_wks3)
+        .replace('%%WK1%%', wk_arr1)
+        .replace('%%WK2%%', wk_arr2)
+        .replace('%%WK3%%', wk_arr3)
+        .replace('%%WKL%%', wkl_js)
+        .replace('%%M1L%%', m1l)
+        .replace('%%M2L%%', m2l)
+        .replace('%%M3L%%', m3l)
+        .replace('%%M1_OS_END%%', str(m1_os_end))
+        .replace('%%M2_OS_END%%', str(m2_os_end))
+        .replace('%%M3_OS_END%%', str(m3_os_end))
+        .replace('%%WK1N%%', str(WK1))
+        .replace('%%WK2N%%', str(WK2))
+        .replace('%%WK3N%%', str(WK3))
+        .replace('%%M1_THRESH%%', str(m1_thresh))
+        .replace('%%M2_THRESH%%', str(m2_thresh))
+        .replace('%%M1_WK_OT%%', str(m1_wk_ot))
+        .replace('%%M2_WK_OT%%', str(m2_wk_ot))
+        .replace('%%M3_WK_OT%%', str(m3_wk_ot))
+        .replace('%%M1_WK_CT%%', str(m1_wk_ct))
+        .replace('%%M2_WK_CT%%', str(m2_wk_ct))
+        .replace('%%M3_WK_CT%%', str(m3_wk_ct))
+        .replace('%%OSI%%', osi_js)
+    )
+
+    dynamic_script = (dynamic_script
+        .replace('%%DAT%%', DAT)
+        .replace('%%MON%%', mon_js)
+        .replace('%%M1_TOT_CT%%', str(m1_tot_ct))
+        .replace('%%M2_TOT_CT%%', str(m2_tot_ct))
+        .replace('%%M3_TOT_CT%%', str(m3_tot_ct))
+        .replace('%%M1_TOT_MT%%', str(m1_tot_mt))
+        .replace('%%M2_TOT_MT%%', str(m2_tot_mt))
+        .replace('%%M3_TOT_MT%%', str(m3_tot_mt))
+        .replace('%%CR_W1%%', cr_m_wks)
+        .replace('%%CR_W2%%', cr_m_wks2)
+        .replace('%%CR_W3%%', cr_m_wks3)
+        .replace('%%FE_W1%%', fe_m_wks)
+        .replace('%%FE_W2%%', fe_m_wks2)
+        .replace('%%FE_W3%%', fe_m_wks3)
+        .replace('%%AC_W1%%', ac_m_wks)
+        .replace('%%AC_W2%%', ac_m_wks2)
+        .replace('%%AC_W3%%', ac_m_wks3)
+        .replace('%%NA_W1%%', na_m_wks)
+        .replace('%%NA_W2%%', na_m_wks2)
+        .replace('%%NA_W3%%', na_m_wks3)
+        .replace('%%WK1%%', wk_arr1)
+        .replace('%%WK2%%', wk_arr2)
+        .replace('%%WK3%%', wk_arr3)
+        .replace('%%WKL%%', wkl_js)
+        .replace('%%M1L%%', m1l)
+        .replace('%%M2L%%', m2l)
+        .replace('%%M3L%%', m3l)
+        .replace('%%M1_OS_END%%', str(m1_os_end))
+        .replace('%%M2_OS_END%%', str(m2_os_end))
+        .replace('%%M3_OS_END%%', str(m3_os_end))
+        .replace('%%WK1N%%', str(WK1))
+        .replace('%%WK2N%%', str(WK2))
+        .replace('%%WK3N%%', str(WK3))
+        .replace('%%M1_THRESH%%', str(m1_thresh))
+        .replace('%%M2_THRESH%%', str(m2_thresh))
+        .replace('%%M1_WK_OT%%', str(m1_wk_ot))
+        .replace('%%M2_WK_OT%%', str(m2_wk_ot))
+        .replace('%%M3_WK_OT%%', str(m3_wk_ot))
+        .replace('%%M1_WK_CT%%', str(m1_wk_ct))
+        .replace('%%M2_WK_CT%%', str(m2_wk_ct))
+        .replace('%%M3_WK_CT%%', str(m3_wk_ct))
+        .replace('%%OSI%%', osi_js)
+    )
+
+    dynamic_script = (dynamic_script
+        .replace('%%DAT%%', DAT)
+        .replace('%%MON%%', mon_js)
+        .replace('%%M1_TOT_CT%%', str(m1_tot_ct))
+        .replace('%%M2_TOT_CT%%', str(m2_tot_ct))
+        .replace('%%M3_TOT_CT%%', str(m3_tot_ct))
+        .replace('%%M1_TOT_MT%%', str(m1_tot_mt))
+        .replace('%%M2_TOT_MT%%', str(m2_tot_mt))
+        .replace('%%M3_TOT_MT%%', str(m3_tot_mt))
+        .replace('%%CR_W1%%', cr_m_wks)
+        .replace('%%CR_W2%%', cr_m_wks2)
+        .replace('%%CR_W3%%', cr_m_wks3)
+        .replace('%%FE_W1%%', fe_m_wks)
+        .replace('%%FE_W2%%', fe_m_wks2)
+        .replace('%%FE_W3%%', fe_m_wks3)
+        .replace('%%AC_W1%%', ac_m_wks)
+        .replace('%%AC_W2%%', ac_m_wks2)
+        .replace('%%AC_W3%%', ac_m_wks3)
+        .replace('%%NA_W1%%', na_m_wks)
+        .replace('%%NA_W2%%', na_m_wks2)
+        .replace('%%NA_W3%%', na_m_wks3)
+        .replace('%%WK1%%', wk_arr1)
+        .replace('%%WK2%%', wk_arr2)
+        .replace('%%WK3%%', wk_arr3)
+        .replace('%%WKL%%', wkl_js)
+        .replace('%%M1L%%', m1l)
+        .replace('%%M2L%%', m2l)
+        .replace('%%M3L%%', m3l)
+        .replace('%%M1_OS_END%%', str(m1_os_end))
+        .replace('%%M2_OS_END%%', str(m2_os_end))
+        .replace('%%M3_OS_END%%', str(m3_os_end))
+        .replace('%%WK1N%%', str(WK1))
+        .replace('%%WK2N%%', str(WK2))
+        .replace('%%WK3N%%', str(WK3))
+        .replace('%%M1_THRESH%%', str(m1_thresh))
+        .replace('%%M2_THRESH%%', str(m2_thresh))
+        .replace('%%M1_WK_OT%%', str(m1_wk_ot))
+        .replace('%%M2_WK_OT%%', str(m2_wk_ot))
+        .replace('%%M3_WK_OT%%', str(m3_wk_ot))
+        .replace('%%M1_WK_CT%%', str(m1_wk_ct))
+        .replace('%%M2_WK_CT%%', str(m2_wk_ct))
+        .replace('%%M3_WK_CT%%', str(m3_wk_ct))
+        .replace('%%OSI%%', osi_js)
+    )
+
+    dynamic_script = (dynamic_script
+        .replace('%%DAT%%', DAT)
+        .replace('%%MON%%', mon_js)
+        .replace('%%M1_TOT_CT%%', str(m1_tot_ct))
+        .replace('%%M2_TOT_CT%%', str(m2_tot_ct))
+        .replace('%%M3_TOT_CT%%', str(m3_tot_ct))
+        .replace('%%M1_TOT_MT%%', str(m1_tot_mt))
+        .replace('%%M2_TOT_MT%%', str(m2_tot_mt))
+        .replace('%%M3_TOT_MT%%', str(m3_tot_mt))
+        .replace('%%CR_W1%%', cr_m_wks)
+        .replace('%%CR_W2%%', cr_m_wks2)
+        .replace('%%CR_W3%%', cr_m_wks3)
+        .replace('%%FE_W1%%', fe_m_wks)
+        .replace('%%FE_W2%%', fe_m_wks2)
+        .replace('%%FE_W3%%', fe_m_wks3)
+        .replace('%%AC_W1%%', ac_m_wks)
+        .replace('%%AC_W2%%', ac_m_wks2)
+        .replace('%%AC_W3%%', ac_m_wks3)
+        .replace('%%NA_W1%%', na_m_wks)
+        .replace('%%NA_W2%%', na_m_wks2)
+        .replace('%%NA_W3%%', na_m_wks3)
+        .replace('%%WK1%%', wk_arr1)
+        .replace('%%WK2%%', wk_arr2)
+        .replace('%%WK3%%', wk_arr3)
+        .replace('%%WKL%%', wkl_js)
+        .replace('%%M1L%%', m1l)
+        .replace('%%M2L%%', m2l)
+        .replace('%%M3L%%', m3l)
+        .replace('%%M1_OS_END%%', str(m1_os_end))
+        .replace('%%M2_OS_END%%', str(m2_os_end))
+        .replace('%%M3_OS_END%%', str(m3_os_end))
+        .replace('%%WK1N%%', str(WK1))
+        .replace('%%WK2N%%', str(WK2))
+        .replace('%%WK3N%%', str(WK3))
+        .replace('%%M1_THRESH%%', str(m1_thresh))
+        .replace('%%M2_THRESH%%', str(m2_thresh))
+        .replace('%%M1_WK_OT%%', str(m1_wk_ot))
+        .replace('%%M2_WK_OT%%', str(m2_wk_ot))
+        .replace('%%M3_WK_OT%%', str(m3_wk_ot))
+        .replace('%%M1_WK_CT%%', str(m1_wk_ct))
+        .replace('%%M2_WK_CT%%', str(m2_wk_ct))
+        .replace('%%M3_WK_CT%%', str(m3_wk_ct))
+        .replace('%%OSI%%', osi_js)
+    )
+
+    dynamic_script = (dynamic_script
+        .replace('%%DAT%%', DAT)
+        .replace('%%MON%%', mon_js)
+        .replace('%%M1_TOT_CT%%', str(m1_tot_ct))
+        .replace('%%M2_TOT_CT%%', str(m2_tot_ct))
+        .replace('%%M3_TOT_CT%%', str(m3_tot_ct))
+        .replace('%%M1_TOT_MT%%', str(m1_tot_mt))
+        .replace('%%M2_TOT_MT%%', str(m2_tot_mt))
+        .replace('%%M3_TOT_MT%%', str(m3_tot_mt))
+        .replace('%%CR_W1%%', cr_m_wks)
+        .replace('%%CR_W2%%', cr_m_wks2)
+        .replace('%%CR_W3%%', cr_m_wks3)
+        .replace('%%FE_W1%%', fe_m_wks)
+        .replace('%%FE_W2%%', fe_m_wks2)
+        .replace('%%FE_W3%%', fe_m_wks3)
+        .replace('%%AC_W1%%', ac_m_wks)
+        .replace('%%AC_W2%%', ac_m_wks2)
+        .replace('%%AC_W3%%', ac_m_wks3)
+        .replace('%%NA_W1%%', na_m_wks)
+        .replace('%%NA_W2%%', na_m_wks2)
+        .replace('%%NA_W3%%', na_m_wks3)
+        .replace('%%WK1%%', wk_arr1)
+        .replace('%%WK2%%', wk_arr2)
+        .replace('%%WK3%%', wk_arr3)
+        .replace('%%WKL%%', wkl_js)
+        .replace('%%M1L%%', m1l)
+        .replace('%%M2L%%', m2l)
+        .replace('%%M3L%%', m3l)
+        .replace('%%M1_OS_END%%', str(m1_os_end))
+        .replace('%%M2_OS_END%%', str(m2_os_end))
+        .replace('%%M3_OS_END%%', str(m3_os_end))
+        .replace('%%WK1N%%', str(WK1))
+        .replace('%%WK2N%%', str(WK2))
+        .replace('%%WK3N%%', str(WK3))
+        .replace('%%M1_THRESH%%', str(m1_thresh))
+        .replace('%%M2_THRESH%%', str(m2_thresh))
+        .replace('%%M1_WK_OT%%', str(m1_wk_ot))
+        .replace('%%M2_WK_OT%%', str(m2_wk_ot))
+        .replace('%%M3_WK_OT%%', str(m3_wk_ot))
+        .replace('%%M1_WK_CT%%', str(m1_wk_ct))
+        .replace('%%M2_WK_CT%%', str(m2_wk_ct))
+        .replace('%%M3_WK_CT%%', str(m3_wk_ct))
+        .replace('%%OSI%%', osi_js)
+    )
+
+
+    html = re.sub(r'<script>[\s\S]*?</script>', dynamic_script, html, count=1, flags=re.DOTALL)
+    html=re.sub(r'WK\d{4}','WK'+WK_ID,html)
     html=html.replace('<div class="hb">WK'+WK_ID+'</div>',
         '<a href="/sum" style="margin-right:12px;padding:5px 12px;background:#1a237e;color:#fff;text-decoration:none;border-radius:4px;font-size:12px;display:inline-block">Sum Table</a><div class="hb">WK'+WK_ID+'</div>')
     return html
