@@ -152,8 +152,9 @@ def build_all(ds=None):
         nwl=str(row[21] or '').strip().lower() if len(row)>21 else ''
         nwi=si(row[21] if len(row)>21 else None); nmi=si(row[20] if len(row)>20 else None)
         src_no=str(row[11] or '') if len(row)>11 else ''
+        fk_date=str(row[12] or '')[:10] if len(row)>12 else ''
         stn,exc,st_time=wip_status(src_no)
-        oi=(str(row[2] or ''),src_no,round(sa,2),str(row[7] or '')[:10],str(row[6] or '')[:10],stn,exc,st_time)
+        oi=(str(row[2] or ''),src_no,round(sa,2),str(row[7] or '')[:10],fk_date,str(row[6] or '')[:10],stn,exc,st_time)
         if nwl=='shipped': nai[pj]['sh']+=sa; nai_orders[pj]['sh'].append(oi)
         elif nmi==M1 and nwi and 1<=nwi<=WK1: nai[pj][M1][nwi-1]+=sa; nai_orders[pj][M1][nwi-1].append(oi)
         elif nmi==M2 and nwi and 1<=nwi<=WK2: nai[pj][M2][nwi-1]+=sa; nai_orders[pj][M2][nwi-1].append(oi)
@@ -253,7 +254,7 @@ def build_all(ds=None):
         for pi,p in enumerate(PROJECTS):
             d=o_dict[p]; md={}
             mths=[(M1,WK1),(M2,WK2),(M3,WK3)] if hm else [(f'{M1}_pd',),(f'{M2}_pd',),(f'{M3}_pd',)]
-            def dedup(lst): seen={}; [seen.__setitem__(o[0],[o[0],o[1],round(o[2],2),o[3],o[4],o[5],o[6],o[7]]) or seen[o[0]][2] or None for o in lst]; return list(seen.values())
+            def dedup(lst): seen={}; [seen.__setitem__(o[0],[o[0],o[1],round(float(o[2] or 0),2),str(o[3] or '')[:10],str(o[4] or '')[:10],str(o[5] or '')[:10],str(o[6] or '')[:10],str(o[7] or '')[:10],str(o[8] or '')[:10]]) or seen[o[0]][2] or None for o in lst]; return list(seen.values())
             for mk in mths:
                 if hm: mth,wks=mk[0],mk[1]; md[str(mth)]=[dedup(d[mth][wk]) for wk in range(wks)]
                 else: mk=mk[0]; md[mk]=dedup(d[mk])
@@ -338,8 +339,8 @@ def build_all(ds=None):
         else: hx+=f'<tr class=ttl><td class=pj>Total</td>'+''.join(f'<td class=d>{fmtv(v)}</td>' for v in tot)+'</tr></table>'
         return hx
 
-    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="30"><title>Penang WK{WK_ID}</title><script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.btn-grn{background:#2e7d32;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-grn:hover{background:#1b5e20}.btn-org{background:#e65100;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-org:hover{background:#bf360c}.hdr{display:flex;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
-    sum_html+=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a><button class="btn-grn" onclick="exportSumExcel()">📥 Export Sum Excel</button><button class="btn-org" onclick="exportMySQL()">📤 MySQL Export</button><span id="sumCd" style="color:#999;font-size:11px;margin-left:8px">&#x23F1; <span id="scd">30</span>s</span></div>'
+    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="900"><title>Penang WK{WK_ID}</title><script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.btn-grn{background:#2e7d32;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-grn:hover{background:#1b5e20}.btn-org{background:#e65100;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-org:hover{background:#bf360c}.hdr{display:flex;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
+    sum_html+=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a><button class="btn-grn" onclick="exportSumExcel()">📥 Export Sum Excel</button><button class="btn-org" onclick="exportMySQL()">📤 MySQL Export</button><span id="sumCd" style="color:#999;font-size:11px;margin-left:8px">&#x23F1; <span id="scd">900</span>s</span></div>'
     sum_html+=f'<p style="color:#666">{now.strftime("%Y-%m-%d %H:%M")} | {MN1}({WK1}w)/{MN2}({WK2}w)/{MN3}({WK3}w)</p>'
     sum_html+='<div id="orderModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal()">&times;</span><span class="close" style="margin-right:30px;font-size:13px;font-weight:normal;cursor:pointer;color:#1565c0" onclick="exportModalExcel()">📥 Export Excel</span><div id="orderList"></div></div></div>'
     sum_html+=tbl(f'Customer Request (WK{WK_ID})',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Pass Due',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ca,ct)
@@ -432,7 +433,7 @@ function exportModalExcel(){
   XLSX.writeFile(wb,'Orders_WK"""+WK_ID+"""_.xlsx');
 }
 // ====== Auto-refresh countdown ======
-var _st=30,el=document.getElementById('scd');setInterval(function(){el.textContent=--_st;_st||(_st=30);},1000);
+var _st=900,el=document.getElementById('scd');setInterval(function(){el.textContent=--_st;_st||(_st=900);},1000);
 </script>"""
     sum_html+='</body></html>'
 
@@ -447,16 +448,16 @@ def _JS_BLOCK(m1):
  return """<script>
 var gPopupTitle='',gPopupCols=[],gPopupData=[];
 function buildOrdersHtml(list,pj,t,isMulti){
-  gPopupTitle=t;gPopupCols=['Order','Source_Number','Request_Date','Due_Date','Sales_amount','Station','Exception'];
+  gPopupTitle=t;gPopupCols=['Order','Source_Number','Sales_amount','Request_Date','FK_date','Due_Date','Station','Exception'];
   var pc=isMulti?['Project']:[];gPopupCols=pc.concat(gPopupCols);
   var h="<h3 style='margin-top:0'>"+t+"</h3><table><thead><tr>"+gPopupCols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>';
   var rows=[];
   list.forEach(function(o){
-    var off=isMulti?1:0;var exc=o[off+6]||'',st_=o[off+7]||'';var es=exc&&st_?(exc+' / '+st_):(exc||st_);
-    var row=[o[off],o[off+1],o[off+3],o[off+4],o[off+2],o[off+5]||'',es];if(isMulti)row=[o[0]].concat(row);rows.push(row);
+    var off=isMulti?1:0;var exc=o[off+7]||'',st_=o[off+8]||'';var es=exc&&st_?(exc+' / '+st_):(exc||st_);
+    var row=[o[off],o[off+1],o[off+2],o[off+3],o[off+4],o[off+5],o[off+6]||'',es];if(isMulti)row=[o[0]].concat(row);rows.push(row);
   });
   gPopupData=rows;var tot=0;
-  rows.forEach(function(r){var amt=r[pc.length+4];tot+=Number(amt)||0;h+='<tr>'+r.map(function(v,i){var isNum=(i===pc.length+4);return '<td'+(isNum?' style="text-align:right"':'')+'>'+(isNum?Number(v).toLocaleString():v||'')+'</td>';}).join('')+'</tr>';});
+  rows.forEach(function(r){var amt=r[pc.length+2];tot+=Number(amt)||0;h+='<tr>'+r.map(function(v,i){var isNum=(i===pc.length+2);return '<td'+(isNum?' style="text-align:right"':'')+'>'+(isNum?Number(v).toLocaleString():v||'')+'</td>';}).join('')+'</tr>';});
   h+='<tr style="font-weight:700;background:#e8eaf6"><td colspan="'+(gPopupCols.length-1)+'">'+list.length+' order(s)</td><td style="text-align:right">$'+Number(tot).toLocaleString()+'</td></tr></tbody></table>';
   document.getElementById("orderList").innerHTML=h;document.getElementById("orderModal").style.display="block";
 }
@@ -788,9 +789,54 @@ new Chart(document.getElementById('cHB'),{type:'bar',data:{labels:its.map(functi
     ctx.restore();}}]
 });
 // ====== Auto-refresh countdown ======
-var _t=30,el=document.getElementById('cdn');
+var _t=900,el=document.getElementById('cdn');
 setInterval(function(){el.textContent=--_t;_t||(_t=30);},1000);
 </script>"""
+    dynamic_script = (dynamic_script
+        .replace('%%DAT%%', DAT)
+        .replace('%%MON%%', mon_js)
+        .replace('%%M1_TOT_CT%%', str(m1_tot_ct))
+        .replace('%%M2_TOT_CT%%', str(m2_tot_ct))
+        .replace('%%M3_TOT_CT%%', str(m3_tot_ct))
+        .replace('%%M1_TOT_MT%%', str(m1_tot_mt))
+        .replace('%%M2_TOT_MT%%', str(m2_tot_mt))
+        .replace('%%M3_TOT_MT%%', str(m3_tot_mt))
+        .replace('%%CR_W1%%', cr_m_wks)
+        .replace('%%CR_W2%%', cr_m_wks2)
+        .replace('%%CR_W3%%', cr_m_wks3)
+        .replace('%%FE_W1%%', fe_m_wks)
+        .replace('%%FE_W2%%', fe_m_wks2)
+        .replace('%%FE_W3%%', fe_m_wks3)
+        .replace('%%AC_W1%%', ac_m_wks)
+        .replace('%%AC_W2%%', ac_m_wks2)
+        .replace('%%AC_W3%%', ac_m_wks3)
+        .replace('%%NA_W1%%', na_m_wks)
+        .replace('%%NA_W2%%', na_m_wks2)
+        .replace('%%NA_W3%%', na_m_wks3)
+        .replace('%%WK1%%', wk_arr1)
+        .replace('%%WK2%%', wk_arr2)
+        .replace('%%WK3%%', wk_arr3)
+        .replace('%%WKL%%', wkl_js)
+        .replace('%%M1L%%', m1l)
+        .replace('%%M2L%%', m2l)
+        .replace('%%M3L%%', m3l)
+        .replace('%%M1_OS_END%%', str(m1_os_end))
+        .replace('%%M2_OS_END%%', str(m2_os_end))
+        .replace('%%M3_OS_END%%', str(m3_os_end))
+        .replace('%%WK1N%%', str(WK1))
+        .replace('%%WK2N%%', str(WK2))
+        .replace('%%WK3N%%', str(WK3))
+        .replace('%%M1_THRESH%%', str(m1_thresh))
+        .replace('%%M2_THRESH%%', str(m2_thresh))
+        .replace('%%M1_WK_OT%%', str(m1_wk_ot))
+        .replace('%%M2_WK_OT%%', str(m2_wk_ot))
+        .replace('%%M3_WK_OT%%', str(m3_wk_ot))
+        .replace('%%M1_WK_CT%%', str(m1_wk_ct))
+        .replace('%%M2_WK_CT%%', str(m2_wk_ct))
+        .replace('%%M3_WK_CT%%', str(m3_wk_ct))
+        .replace('%%OSI%%', osi_js)
+    )
+
     dynamic_script = (dynamic_script
         .replace('%%DAT%%', DAT)
         .replace('%%MON%%', mon_js)
