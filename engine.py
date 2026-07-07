@@ -413,14 +413,7 @@ function exportSumExcel(){
 }
 // ====== Download MySQL Export ======
 function exportMySQL(){
-  var csv='Project,Order,Due_Date,Request_Date,Sales_Amount,CR_Month,CR_WK,MFS_TYPE,MFS_MTH,MFS_WK,NAI_MTH,NAI_WK,OTDR_MTH,OTDR_WK,OTDR_ACCU_MTH,OTDR_ACCU_WK\\n';
-  for(var i=0;i<SUM_DATA.pj.length;i++){
-    var rows=ODR[String(i)]||[];
-    for(var j=0;j<rows.length;j++){
-      var r=rows[j];csv+='\"'+SUM_DATA.pj[i]+'\",\"'+r[2]+'\",\"'+r[6]+'\",\"'+r[7]+'\",'+r[10]+','+r[15]+','+r[16]+','+r[17]+','+r[18]+','+r[19]+','+r[20]+','+r[21]+','+r[22]+','+r[23]+','+r[24]+','+r[25]+'\\n';
-    }
-  }
-  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='MySQL_Export_WK"""+WK_ID+""".csv';a.click();
+  window.open('/export/mysql','_blank');
 }
 // ====== Export popup modal table to Excel ======
 function exportModalExcel(){
