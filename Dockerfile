@@ -10,6 +10,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY *.py ./
 COPY template_dash.html ./
+COPY template_sum.html ./
+COPY static/ ./static/
 
 RUN mkdir -p /app/outputs
 
