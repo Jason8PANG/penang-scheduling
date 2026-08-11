@@ -113,7 +113,7 @@ def build_all(ds=None):
         v=row[8]
         if v:
             s=str(v).strip()
-            if 'copper' in s.lower() or 'semi' in s.lower(): raw[normalize_pj(s)]=True
+            raw[normalize_pj(s)]=True
     PROJECTS=sorted(raw.keys()); N=len(PROJECTS)
 
     cr={p:{'pd':0,M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
