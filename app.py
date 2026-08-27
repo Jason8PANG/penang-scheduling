@@ -28,9 +28,9 @@ def export_mysql():
                  'Project_code','Sales_price','Sales_amount','Source_Number','FK_date',
                  'pick_up_date','FG_stock','CR_Month','CR_WK','MFS_TYPE','MFS_MTH','MFS_WK',
                  'NAI_MTH','NAI_WK','OTDR_MTH','OTDR_WK','OTDR_ACCU_MTH','OTDR_ACCU_WK',
-                 'Real_Production_MTH','Real_Production_WK','Data_Source'])
+                 'Real_Production_MTH','Real_Production_WK','Data_Source','OTDR_Status'])
     for r in rows:
-        cw.writerow(r[1:29])
+        cw.writerow(list(r[1:29]) + [r[30]])
     return Response(si.getvalue(), mimetype='text/csv',
                     headers={'Content-Disposition': 'attachment; filename=mysql_export.csv'})
 

@@ -124,6 +124,9 @@ def build_all(ds=None):
     otdr={p:{f'{M1}_pd':0,M1:[0]*WK1,f'{M1}_adv':0,f'{M2}_pd':0,M2:[0]*WK2,f'{M2}_adv':0,f'{M3}_pd':0,M3:[0]*WK3,f'{M3}_adv':0} for p in PROJECTS}
     otdd={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
     real={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
+    # OTDR row-count tracking: total rows & Meet rows per project/month/week (for new OTDR % table)
+    otr_tot={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
+    otr_meet={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
     nai_orders={p:{M1:{w:[] for w in range(WK1)},M2:{w:[] for w in range(WK2)},M3:{w:[] for w in range(WK3)},"sh":[]} for p in PROJECTS}
     otdr_orders={p:{f'{M1}_pd':[],f'{M2}_pd':[],f'{M3}_pd':[]} for p in PROJECTS}
 
@@ -181,6 +184,18 @@ def build_all(ds=None):
         if rmi==M1 and rwi and 1<=rwi<=WK1: real[pj][M1][rwi-1]+=sa
         elif rmi==M2 and rwi and 1<=rwi<=WK2: real[pj][M2][rwi-1]+=sa
         elif rmi==M3 and rwi and 1<=rwi<=WK3: real[pj][M3][rwi-1]+=sa
+        # OTDR row-count: count rows (not amounts) by OTDR_MTH/OTDR_WK, Meet vs total
+        ots_=str(row[30] or '').strip() if len(row)>30 else ''
+        otm_i=si(row[22] if len(row)>22 else None); otw_i=si(row[23] if len(row)>23 else None)
+        if otm_i==M1 and otw_i and 1<=otw_i<=WK1:
+            otr_tot[pj][M1][otw_i-1]+=1
+            if ots_=='Meet': otr_meet[pj][M1][otw_i-1]+=1
+        elif otm_i==M2 and otw_i and 1<=otw_i<=WK2:
+            otr_tot[pj][M2][otw_i-1]+=1
+            if ots_=='Meet': otr_meet[pj][M2][otw_i-1]+=1
+        elif otm_i==M3 and otw_i and 1<=otw_i<=WK3:
+            otr_tot[pj][M3][otw_i-1]+=1
+            if ots_=='Meet': otr_meet[pj][M3][otw_i-1]+=1
 
     active=[]
     for p in PROJECTS:
@@ -274,6 +289,29 @@ def build_all(ds=None):
         return r
 
     nai_oj=build_oj(nai_orders,True); otdr_oj=build_oj(otdr_orders,False)
+
+    # ── OTDR row-count % (Meet rows / total rows per project×week) ──
+    TW_=WK1+WK2+WK3
+    otr_t_arr=[]; otr_m_arr=[]
+    for p in PROJECTS:
+        ct_=[]; cm_=[]
+        for m,wk in ((M1,WK1),(M2,WK2),(M3,WK3)):
+            for w in range(wk):
+                ct_.append(otr_tot[p][m][w]); cm_.append(otr_meet[p][m][w])
+        otr_t_arr.append(ct_); otr_m_arr.append(cm_)
+    otr_wk_tot=[0]*TW_; otr_wk_meet=[0]*TW_
+    for i in range(N):
+        for j in range(TW_):
+            otr_wk_tot[j]+=otr_t_arr[i][j]; otr_wk_meet[j]+=otr_m_arr[i][j]
+    otr_wk_pct=[round(otr_wk_meet[j]/otr_wk_tot[j]*100,1) if otr_wk_tot[j]>0 else '' for j in range(TW_)]
+    # Accu Total (Weekly): MTD cumulative within each month
+    otr_acc_pct=[]; _off=0
+    for _wk in (WK1,WK2,WK3):
+        _ct=0; _cm=0
+        for j in range(_wk):
+            _ct+=otr_wk_tot[_off+j]; _cm+=otr_wk_meet[_off+j]
+            otr_acc_pct.append(round(_cm/_ct*100,1) if _ct>0 else '')
+        _off+=_wk
     sd={'pj':PROJECTS,'WK1':WK1,'WK2':WK2,'WK3':WK3,'wk':WK_ID,
         'cr':[[sf_int(v) for v in r] for r in ca],
         'cr_tot':[sf_int(v) for v in ct],
@@ -284,6 +322,10 @@ def build_all(ds=None):
         'otdr':[[sf_int(v) for v in r] for r in oa],
         'otdr_tot':[sf_int(v) for v in ot],
         'otdr_stat':os_,'cr_total':cr_total,
+        'otr_meet':otr_m_arr,'otr_tot':otr_t_arr,
+        'otr_wk_meet':otr_wk_meet,'otr_wk_tot':otr_wk_tot,
+        'otr_wk_pct':otr_wk_pct,'otr_acc_pct':otr_acc_pct,
+        'mn':[MN1,MN2,MN3],
         'real_total':real_arr,'real_stat':rs_status,
         'do':[[0]*TW for _ in range(N)],'dc':[[0]*TW for _ in range(N)],
         'act_m1':am1,'act_m2':am2,'act_m3':am3,'fest_m1':fm1,'fest_m2':fm2,'fest_m3':fm3,
@@ -347,56 +389,36 @@ def build_all(ds=None):
         return hx
 
     sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="900"><title>Penang WK{WK_ID}</title><script src="/static/xlsx.full.min.js"></script><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.btn-grn{background:#2e7d32;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-grn:hover{background:#1b5e20}.btn-org{background:#e65100;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-org:hover{background:#bf360c}.hdr{display:flex;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
-    sum_html+=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a><button class="btn-grn" onclick="exportSumExcel()">📥 Export Sum Excel</button><button class="btn-org" onclick="exportMySQL()">📤 MySQL Export</button><span id="sumCd" style="color:#999;font-size:11px;margin-left:8px">&#x23F1; <span id="scd">900</span>s</span></div>'
+    sum_html+=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a><button class="btn-grn" onclick="exportSumExcel()">📥 Export Sum Excel</button><button class="btn-org" onclick="exportMySQL()">📤 Export Raw Data</button><span id="sumCd" style="color:#999;font-size:11px;margin-left:8px">&#x23F1; <span id="scd">900</span>s</span></div>'
     sum_html+=f'<p style="color:#666">{now.strftime("%Y-%m-%d %H:%M")} | {MN1}({WK1}w)/{MN2}({WK2}w)/{MN3}({WK3}w)</p>'
     sum_html+='<div id="orderModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal()">&times;</span><span class="close" style="margin-right:30px;font-size:13px;font-weight:normal;cursor:pointer;color:#1565c0" onclick="exportModalExcel()">📥 Export Excel</span><div id="orderList"></div></div></div>'
     sum_html+=tbl(f'Customer Request (WK{WK_ID})',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Pass Due',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ca,ct)
     sum_html+=tbl('Material FK status',1+WK1+1+WK2+1+WK3+1,[('Project code',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ma,mt_)
     sum_html+=tbl('NAI Production (Commit)',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Shipped',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],na,nt,clickable=True,nai_mode=True)
 
-    otdr_cols=1+(WK1+3)*3
-    sum_html+=f'<table><tr><td class=tt colspan={otdr_cols}>OTDR</td></tr><tr>'
-    sum_html+=f'<th class=mh rowspan=2 style="min-width:120px">Project code</th>'
-    sum_html+=f'<th class=mh colspan={WK1+3}>{MN1}</th><th class=mh colspan={WK2+3}>{MN2}</th><th class=mh colspan={WK3+3}>{MN3}</th></tr><tr>'
-    sum_html+='<th class=st>Pass Due</th>'+''.join(f'<th class=sh>{w}</th>' for w in w1)+'<th class=st>Advanced</th><th class=sh>Total</th>'
-    sum_html+='<th class=st>Pass Due</th>'+''.join(f'<th class=sh>{w}</th>' for w in w2)+'<th class=st>Advanced</th><th class=sh>Total</th>'
-    sum_html+='<th class=st>Pass Due</th>'+''.join(f'<th class=sh>{w}</th>' for w in w3)+'<th class=st>Advanced</th><th class=sh>Total</th></tr>'
-    for i,p in enumerate(PROJECTS):
-        sum_html+=f'<tr><td class=pj>{p}</td>'
-        for ci,v in enumerate(oa[i]):
-            if ci==0:
-                if v and isinstance(v,(int,float)) and sf_int(v)!=0: sum_html+=f'<td class="d dc" onclick="showOTDR({i},\'{M1}_pd\')">{fmtv(v)}</td>'
-                else: sum_html+=f'<td class=d>{fmtv(v)}</td>'
-            else: sum_html+=f'<td class=d>{fmtv(v)}</td>'
-        sum_html+='</tr>'
-    sum_html+='<tr class=ttl><td class=pj>Total</td>'
-    for ci,v in enumerate(ot):
-        if ci==0 and v and isinstance(v,(int,float)) and sf_int(v)!=0: sum_html+=f'<td class="d dc" onclick="showOTDRAll()">{fmtv(v)}</td>'
-        else: sum_html+=f'<td class=d>{fmtv(v)}</td>'
-    sum_html+='</tr></table>'
-
-    sum_cols=1+WK1+WK2+WK3
-    sum_html+=f'<table><tr><td class=tt colspan={sum_cols}>OTDR Real Summary</td></tr><tr>'
-    sum_html+=f'<th class=mh rowspan=2 style="min-width:120px">Category</th>'
+    # ── New OTDR table: Meet-row % per project×week (replaces old OTDR + OTDR Real Summary) ──
+    otr_cols=1+WK1+WK2+WK3
+    sum_html+=f'<table><tr><td class=tt colspan={otr_cols}>OTDR</td></tr><tr>'
+    sum_html+=f'<th class=mh rowspan=2 style="min-width:140px">Category</th>'
     sum_html+=f'<th class=mh colspan={WK1}>{MN1}</th><th class=mh colspan={WK2}>{MN2}</th><th class=mh colspan={WK3}>{MN3}</th></tr><tr>'
-    sum_html+=''.join(f'<th class=sh>W{i+1}</th>' for i in range(WK1))
-    sum_html+=''.join(f'<th class=sh>W{i+1}</th>' for i in range(WK2))
-    sum_html+=''.join(f'<th class=sh>W{i+1}</th>' for i in range(WK3))
+    for wc in (WK1,WK2,WK3):
+        sum_html+=''.join(f'<th class=sh>W{i+1}</th>' for i in range(wc))
     sum_html+='</tr>'
-    def sum_row(label,data,clr):
-        wks=[]; off=1
-        for wc in [WK1,WK2,WK3]: wks.extend(data[off:off+wc]); off+=wc+3
-        hx=f'<tr class=rttl><td class=pj style="background:{clr};color:#1565c0">{label}</td>'
-        for v in wks:
-            s=f'style="background:{clr}"'
-            if v!='' and isinstance(v,int) and v>0:
-                hx+=f'<td class="d pct" {s}>{v}%</td>' if 'Status' in label else f'<td class=d {s}>{fmtv(v)}</td>'
-            else: hx+=f'<td class=d {s}>{fmtv(v)}</td>'
-        return hx+'</tr>'
-    sum_html+=sum_row('OTDR Total',ott_accu,'#e3f2fd')
-    sum_html+=sum_row('OTDR Status',os_,'#e3f2fd')
-    sum_html+=sum_row('Real Total',real_arr,'#fff3e0')
-    sum_html+=sum_row('Real Status',rs_status,'#fff3e0')
+    def otr_pct_cells(vals):
+        hx=''
+        for v in vals:
+            if v=='' or v is None: hx+='<td class=d></td>'
+            else: hx+=f'<td class="d pct">{v}%</td>'
+        return hx
+    for p in PROJECTS:
+        cells=[]
+        for m,wk in ((M1,WK1),(M2,WK2),(M3,WK3)):
+            for w in range(wk):
+                t=otr_tot[p][m][w]; mt=otr_meet[p][m][w]
+                cells.append(round(mt/t*100,1) if t>0 else '')
+        sum_html+=f'<tr><td class=pj>{p}</td>'+otr_pct_cells(cells)+'</tr>'
+    sum_html+='<tr class=ttl><td class=pj>Total (Weekly)</td>'+otr_pct_cells(otr_wk_pct)+'</tr>'
+    sum_html+='<tr class=ttl><td class=pj>Accu Total (Weekly)</td>'+otr_pct_cells(otr_acc_pct)+'</tr>'
     sum_html+='</table>'
 
     sum_html+=f'<script>var SUM_DATA={sd_json};var NAO={nao_json};var ODR={odr_json};</script>'
@@ -407,7 +429,7 @@ function exportSumExcel(){
   if(typeof XLSX==='undefined'){alert('Please wait for library to load');return;}
   var d=SUM_DATA;
   var WK1=d.WK1,WK2=d.WK2,WK3=d.WK3;
-  var mls=['July','August','September'];
+  var mls=d.mn||['July','August','September'];
   var wks=[WK1,WK2,WK3];
   var wb=XLSX.utils.book_new();
 
@@ -441,30 +463,34 @@ function exportSumExcel(){
   addSheet('CR',d.cr,'pd',d.cr_tot||d.ct);
   addSheet('MFS',d.mfs,'',d.mfs_tot);
   addSheet('NAI',d.nai,'sh',d.nai_tot);
-  // OTDR - special: each month has PD, W1..Wk, Adv, Total
+  // OTDR row-count % table: Category × week (Meet rows / total rows)
   (function(){
-    var h=['Project Code'];
+    var h=['Category'];
     for(var mi=0;mi<3;mi++){
-      h.push(mls[mi]+' PD');
       for(var wi=1;wi<=wks[mi];wi++)h.push(mls[mi]+' W'+wi);
-      h.push(mls[mi]+' Adv');
-      h.push(mls[mi]+' Total');
     }
     var ws=XLSX.utils.aoa_to_sheet([h]);
     for(var i=0;i<d.pj.length;i++){
-      var row=d.otdr[i];if(!row)continue;
       var r=[d.pj[i]];
-      for(var j=0;j<row.length;j++)r.push(row[j]||0);
+      var mtArr=d.otr_meet&&d.otr_meet[i]?d.otr_meet[i]:[];
+      var ttArr=d.otr_tot&&d.otr_tot[i]?d.otr_tot[i]:[];
+      for(var j=0;j<mtArr.length;j++){
+        var t=ttArr[j]||0,m=mtArr[j]||0;
+        r.push(t>0?Math.round(m/t*1000)/10:0);
+      }
       XLSX.utils.sheet_add_aoa(ws,[r],{origin:'A'+(i+2)});
     }
-    var tr=['Total'];
-    for(var j=0;j<(d.otdr_tot||[]).length;j++)tr.push(d.otdr_tot[j]||0);
-    XLSX.utils.sheet_add_aoa(ws,[tr],{origin:'A'+(d.pj.length+2)});
+    var wkRow=['Total (Weekly)'];
+    for(var j=0;j<(d.otr_wk_pct||[]).length;j++)wkRow.push(d.otr_wk_pct[j]||0);
+    XLSX.utils.sheet_add_aoa(ws,[wkRow],{origin:'A'+(d.pj.length+2)});
+    var acRow=['Accu Total (Weekly)'];
+    for(var j=0;j<(d.otr_acc_pct||[]).length;j++)acRow.push(d.otr_acc_pct[j]||0);
+    XLSX.utils.sheet_add_aoa(ws,[acRow],{origin:'A'+(d.pj.length+3)});
     XLSX.utils.book_append_sheet(wb,ws,'OTDR');
   })();
   XLSX.writeFile(wb,'Penang_WK"""+WK_ID+"""_Export.xlsx');
 }
-// ====== Download MySQL Export ======
+// ====== Download Raw Data Export ======
 function exportMySQL(){
   window.open('/export/mysql','_blank');
 }

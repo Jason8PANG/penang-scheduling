@@ -4,6 +4,7 @@ __pycache__/
 outputs/
 debug.log
 *.log
+.workbuddy/
 
 # Dev / temporary helper files
 __*.html
