@@ -117,6 +117,7 @@ def build_all(ds=None):
     PROJECTS=sorted(raw.keys()); N=len(PROJECTS)
 
     cr={p:{'pd':0,M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
+    sc={p:{'pd':0,M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}  # NAI Schedule: same shape as CR, driven by SHP_MTH/SHP_WK
     nai={p:{'sh':0,M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
     mfs={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
     mfa={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
@@ -139,6 +140,13 @@ def build_all(ds=None):
         elif cmi==M1 and cwi and 1<=cwi<=WK1: cr[pj][M1][cwi-1]+=sa
         elif cmi==M2 and cwi and 1<=cwi<=WK2: cr[pj][M2][cwi-1]+=sa
         elif cmi==M3 and cwi and 1<=cwi<=WK3: cr[pj][M3][cwi-1]+=sa
+        # NAI Schedule: identical shape to CR but keyed by SHP_MTH(32)/SHP_WK(33)
+        sm_i=si(row[32] if len(row)>32 else None); sw_i=si(row[33] if len(row)>33 else None)
+        swl=str(row[33] or '').strip().lower() if len(row)>33 else ''
+        if swl in ('backlog','pass due'): sc[pj]['pd']+=sa
+        elif sm_i==M1 and sw_i and 1<=sw_i<=WK1: sc[pj][M1][sw_i-1]+=sa
+        elif sm_i==M2 and sw_i and 1<=sw_i<=WK2: sc[pj][M2][sw_i-1]+=sa
+        elif sm_i==M3 and sw_i and 1<=sw_i<=WK3: sc[pj][M3][sw_i-1]+=sa
         mmi=si(row[18] if len(row)>18 else None); mwi=si(row[19] if len(row)>19 else None); mtl=str(row[17] or '').strip().lower() if len(row)>17 else ''
         if mmi==M1 and mwi and 1<=mwi<=WK1:
             mfs[pj][M1][mwi-1]+=sa
@@ -205,6 +213,9 @@ def build_all(ds=None):
     ca=[]; 
     for p in PROJECTS: d=cr[p]; ca.append([d['pd']]+d[M1]+[sf_int(d['pd']+sum(d[M1]))]+d[M2]+[sf_int(sum(d[M2]))]+d[M3]+[sf_int(sum(d[M3]))])
     ct=[sf_int(sum(ca[i][j] for i in range(N))) for j in range(len(ca[0]))]
+    sca=[]
+    for p in PROJECTS: d=sc[p]; sca.append([d['pd']]+d[M1]+[sf_int(d['pd']+sum(d[M1]))]+d[M2]+[sf_int(sum(d[M2]))]+d[M3]+[sf_int(sum(d[M3]))])
+    sct=[sf_int(sum(sca[i][j] for i in range(N))) for j in range(len(sca[0]))]
     ma=[]; 
     for p in PROJECTS: d=mfs[p]; ma.append(d[M1]+[sf_int(sum(d[M1]))]+d[M2]+[sf_int(sum(d[M2]))]+d[M3]+[sf_int(sum(d[M3]))])
     mt_=[sf_int(sum(ma[i][j] for i in range(N))) for j in range(len(ma[0]))]
@@ -315,6 +326,8 @@ def build_all(ds=None):
     sd={'pj':PROJECTS,'WK1':WK1,'WK2':WK2,'WK3':WK3,'wk':WK_ID,
         'cr':[[sf_int(v) for v in r] for r in ca],
         'cr_tot':[sf_int(v) for v in ct],
+        'sc':[[sf_int(v) for v in r] for r in sca],
+        'sc_tot':[sf_int(v) for v in sct],
         'mfs':[[sf_int(v) for v in r] for r in ma],
         'mfs_tot':[sf_int(v) for v in mt_],
         'nai':[[sf_int(v) for v in r] for r in na],
@@ -393,7 +406,8 @@ def build_all(ds=None):
     sum_html+=f'<p style="color:#666">{now.strftime("%Y-%m-%d %H:%M")} | {MN1}({WK1}w)/{MN2}({WK2}w)/{MN3}({WK3}w)</p>'
     sum_html+='<div id="orderModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal()">&times;</span><span class="close" style="margin-right:30px;font-size:13px;font-weight:normal;cursor:pointer;color:#1565c0" onclick="exportModalExcel()">📥 Export Excel</span><div id="orderList"></div></div></div>'
     sum_html+=tbl(f'Customer Request (WK{WK_ID})',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Pass Due',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ca,ct)
-    sum_html+=tbl('Material FK status',1+WK1+1+WK2+1+WK3+1,[('Project code',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ma,mt_)
+    sum_html+=tbl(f'NAI Schedule (WK{WK_ID})',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Pass Due',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],sca,sct)
+    sum_html+=tbl('NAI Schedule FK Status',1+WK1+1+WK2+1+WK3+1,[('Project code',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ma,mt_)
     sum_html+=tbl('NAI Production (Commit)',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Shipped',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],na,nt,clickable=True,nai_mode=True)
 
     # ── New OTDR table: Meet-row % per project×week (replaces old OTDR + OTDR Real Summary) ──
@@ -461,6 +475,7 @@ function exportSumExcel(){
   }
 
   addSheet('CR',d.cr,'pd',d.cr_tot||d.ct);
+  addSheet('NAI Schedule',d.sc,'pd',d.sc_tot||d.sct);
   addSheet('MFS',d.mfs,'',d.mfs_tot);
   addSheet('NAI',d.nai,'sh',d.nai_tot);
   // OTDR row-count % table: Category × week (Meet rows / total rows)
