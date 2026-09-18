@@ -119,9 +119,9 @@ def build_all(ds=None):
     cr={p:{'pd':0,M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
     sc={p:{'pd':0,M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}  # NAI Schedule: same shape as CR, driven by SHP_MTH/SHP_WK
     nai={p:{'sh':0,M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
-    mfs={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
-    mfa={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
-    mff={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
+    mfs={p:{M1:[0]*(WK1+1),M2:[0]*(WK2+1),M3:[0]*(WK3+1)} for p in PROJECTS}   # idx0=W0(提前备料), idx n=W n
+    mfa={p:{M1:[0]*(WK1+1),M2:[0]*(WK2+1),M3:[0]*(WK3+1)} for p in PROJECTS}
+    mff={p:{M1:[0]*(WK1+1),M2:[0]*(WK2+1),M3:[0]*(WK3+1)} for p in PROJECTS}
     otdr={p:{f'{M1}_pd':0,M1:[0]*WK1,f'{M1}_adv':0,f'{M2}_pd':0,M2:[0]*WK2,f'{M2}_adv':0,f'{M3}_pd':0,M3:[0]*WK3,f'{M3}_adv':0} for p in PROJECTS}
     otdd={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
     real={p:{M1:[0]*WK1,M2:[0]*WK2,M3:[0]*WK3} for p in PROJECTS}
@@ -148,18 +148,19 @@ def build_all(ds=None):
         elif sm_i==M2 and sw_i and 1<=sw_i<=WK2: sc[pj][M2][sw_i-1]+=sa
         elif sm_i==M3 and sw_i and 1<=sw_i<=WK3: sc[pj][M3][sw_i-1]+=sa
         mmi=si(row[18] if len(row)>18 else None); mwi=si(row[19] if len(row)>19 else None); mtl=str(row[17] or '').strip().lower() if len(row)>17 else ''
-        if mmi==M1 and mwi and 1<=mwi<=WK1:
-            mfs[pj][M1][mwi-1]+=sa
-            if mtl=='actual': mfa[pj][M1][mwi-1]+=sa
-            elif mtl=='forecast': mff[pj][M1][mwi-1]+=sa
-        elif mmi==M2 and mwi and 1<=mwi<=WK2:
-            mfs[pj][M2][mwi-1]+=sa
-            if mtl=='actual': mfa[pj][M2][mwi-1]+=sa
-            elif mtl=='forecast': mff[pj][M2][mwi-1]+=sa
-        elif mmi==M3 and mwi and 1<=mwi<=WK3:
-            mfs[pj][M3][mwi-1]+=sa
-            if mtl=='actual': mfa[pj][M3][mwi-1]+=sa
-            elif mtl=='forecast': mff[pj][M3][mwi-1]+=sa
+        # MFS: MFS_WK=0 → W0 bucket (idx 0, 提前备料 by FK earlier than anchor month); Wn → idx n
+        if mmi==M1 and mwi is not None and 0<=mwi<=WK1:
+            mfs[pj][M1][mwi]+=sa
+            if mtl=='actual': mfa[pj][M1][mwi]+=sa
+            elif mtl=='forecast': mff[pj][M1][mwi]+=sa
+        elif mmi==M2 and mwi is not None and 0<=mwi<=WK2:
+            mfs[pj][M2][mwi]+=sa
+            if mtl=='actual': mfa[pj][M2][mwi]+=sa
+            elif mtl=='forecast': mff[pj][M2][mwi]+=sa
+        elif mmi==M3 and mwi is not None and 0<=mwi<=WK3:
+            mfs[pj][M3][mwi]+=sa
+            if mtl=='actual': mfa[pj][M3][mwi]+=sa
+            elif mtl=='forecast': mff[pj][M3][mwi]+=sa
         nwl=str(row[21] or '').strip().lower() if len(row)>21 else ''
         nwi=si(row[21] if len(row)>21 else None); nmi=si(row[20] if len(row)>20 else None)
         src_no=str(row[11] or '') if len(row)>11 else ''
@@ -343,22 +344,26 @@ def build_all(ds=None):
         'do':[[0]*TW for _ in range(N)],'dc':[[0]*TW for _ in range(N)],
         'act_m1':am1,'act_m2':am2,'act_m3':am3,'fest_m1':fm1,'fest_m2':fm2,'fest_m3':fm3,
         'mta':[0]*19,'mtf':[0]*19}
-    for w in range(WK1): sd['mta'][w]=sf_int(sum(mfa[p][M1][w] for p in PROJECTS)); sd['mtf'][w]=sf_int(sum(mff[p][M1][w] for p in PROJECTS))
+    # NOTE: mfa/mff arrays now have idx0=W0 bucket; weekly positions use [w+1] to skip W0.
+    # Month totals (am*/fm*) intentionally INCLUDE W0 so they match the /sum FK Status table.
+    for w in range(WK1): sd['mta'][w]=sf_int(sum(mfa[p][M1][w+1] for p in PROJECTS)); sd['mtf'][w]=sf_int(sum(mff[p][M1][w+1] for p in PROJECTS))
     sd['mta'][5]=am1; sd['mtf'][5]=fm1
-    for w in range(WK2): sd['mta'][6+w]=sf_int(sum(mfa[p][M2][w] for p in PROJECTS)); sd['mtf'][6+w]=sf_int(sum(mff[p][M2][w] for p in PROJECTS))
+    for w in range(WK2): sd['mta'][6+w]=sf_int(sum(mfa[p][M2][w+1] for p in PROJECTS)); sd['mtf'][6+w]=sf_int(sum(mff[p][M2][w+1] for p in PROJECTS))
     sd['mta'][12]=am2; sd['mtf'][12]=fm2
-    for w in range(WK3): sd['mta'][13+w]=sf_int(sum(mfa[p][M3][w] for p in PROJECTS)); sd['mtf'][13+w]=sf_int(sum(mff[p][M3][w] for p in PROJECTS))
+    for w in range(WK3): sd['mta'][13+w]=sf_int(sum(mfa[p][M3][w+1] for p in PROJECTS)); sd['mtf'][13+w]=sf_int(sum(mff[p][M3][w+1] for p in PROJECTS))
     sd['mta'][18]=am3; sd['mtf'][18]=fm3
 
     # mfa, mff not computed in this version - use 0 for now
     sd_json=json.dumps(sd); nao_json=json.dumps(nai_oj); odr_json=json.dumps(otdr_oj)
 
     # ── GENERATE SUM HTML ──
-    def tbl(title,cols,h1,data,tot,clickable=False,nai_mode=False):
+    def tbl(title,cols,h1,data,tot,clickable=False,nai_mode=False,w0=False):
+        w0_pos={0,WK1+2,WK1+WK2+4} if w0 else set()
         hx=f'<table><tr><td class="tt" colspan="{cols}">{title}</td></tr><tr>'
         for v,s in h1: hx+=f'<th class="mh" {"rowspan=2" if s==1 else f"colspan={s}"}>{v}</th>'
         hx+='</tr><tr>'
         for _,wc in [(MN1,WK1),(MN2,WK2),(MN3,WK3)]:
+            if w0: hx+='<th class="sh w0">W0</th>'
             for i in range(wc): hx+=f'<th class="sh">W{i+1}</th>'
             hx+='<th class="sh">Total</th>'
         hx+='</tr>'
@@ -381,7 +386,9 @@ def build_all(ds=None):
                     else: m_=None
                     if m_: hx+=f'<td class="d dc" onclick="showOrders({i},{m_},-1)">{fmtv(v)}</td>'
                     else: hx+=f'<td class="d">{fmtv(v)}</td>'
-                else: hx+=f'<td class="d">{fmtv(v)}</td>'
+                else:
+                    _cls='d w0c' if ci in w0_pos else 'd'
+                    hx+=f'<td class="{_cls}">{fmtv(v)}</td>'
             hx+='</tr>'
         if nai_mode:
             hx+=f'<tr class=ttl><td class=pj>Total</td>'
@@ -398,16 +405,21 @@ def build_all(ds=None):
                 elif m_=='sh': hx+=f"<td class=\"d dc\" onclick='showOrdersAll(\"sh\",-1)'>{fmtv(v)}</td>"
                 else: hx+=f'<td class="d">{fmtv(v)}</td>'
             hx+='</tr></table>'
-        else: hx+=f'<tr class=ttl><td class=pj>Total</td>'+''.join(f'<td class=d>{fmtv(v)}</td>' for v in tot)+'</tr></table>'
+        else:
+            hx+='<tr class=ttl><td class=pj>Total</td>'
+            for ci,v in enumerate(tot):
+                _cls='d w0c' if ci in w0_pos else 'd'
+                hx+=f'<td class="{_cls}">{fmtv(v)}</td>'
+            hx+='</tr></table>'
         return hx
 
-    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="900"><title>Penang WK{WK_ID}</title><script src="/static/xlsx.full.min.js"></script><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.btn-grn{background:#2e7d32;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-grn:hover{background:#1b5e20}.btn-org{background:#e65100;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-org:hover{background:#bf360c}.hdr{display:flex;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
+    sum_html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="900"><title>Penang WK{WK_ID}</title><script src="/static/xlsx.full.min.js"></script><style>body{font-family:Segoe UI,sans-serif;font-size:11px;margin:20px;background:#f5f5f5}h1{color:#1a237e;font-size:20px}table{border-collapse:collapse;margin-bottom:15px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}td,th{border:1px solid #ccc;padding:3px 6px;text-align:center;vertical-align:middle}.pj{text-align:left;font-weight:600;background:#fff;min-width:140px}.d{background:#fff;min-width:50px}.dc{cursor:pointer;text-decoration:underline;color:#1565c0;font-weight:600}.dc:hover{background:#bbdefb}.tt{text-align:center;font-weight:700;font-size:13px;color:#fff;background:#1a237e;padding:4px 10px}.mh{font-weight:700;font-size:10px;background:#e8eaf6;color:#1a237e;text-align:center}.sh{font-weight:600;font-size:10px;background:#f5f5f5;text-align:center}.st{font-weight:700;font-size:10px;background:#fff3e0;text-align:center;color:#e65100}.pct{color:#1565c0;font-weight:600}.w0c{background:#fff9c4 !important;color:#e65100 !important;font-weight:700}.sh.w0{background:#fff3e0 !important;color:#e65100 !important}.ttl td{background:#e8eaf6;font-weight:700;color:#1a237e}.btn{background:#1a237e;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;border:none}.btn-grn{background:#2e7d32;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-grn:hover{background:#1b5e20}.btn-org{background:#e65100;color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:11px;border:none}.btn-org:hover{background:#bf360c}.hdr{display:flex;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}.modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4)}.modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:6px;width:85%;max-height:75vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.2)}.modal-content table{width:100%;margin:0;box-shadow:none;white-space:nowrap}.modal-content td,.modal-content th{padding:3px 5px;font-size:11px}.modal-content thead th{position:sticky;top:0;background:#d9e1f2;z-index:1}.close{float:right;font-size:24px;font-weight:bold;cursor:pointer;color:#666}.close:hover{color:#000}</style></head><body>'
     sum_html+=f'<div class="hdr"><h1 style="margin:0">Penang Production Scheduling &mdash; WK{WK_ID}</h1><a href="/" class="btn" style="margin-left:15px">📈 Dashboard</a><button class="btn-grn" onclick="exportSumExcel()">📥 Export Sum Excel</button><button class="btn-org" onclick="exportMySQL()">📤 Export Raw Data</button><span id="sumCd" style="color:#999;font-size:11px;margin-left:8px">&#x23F1; <span id="scd">900</span>s</span></div>'
     sum_html+=f'<p style="color:#666">{now.strftime("%Y-%m-%d %H:%M")} | {MN1}({WK1}w)/{MN2}({WK2}w)/{MN3}({WK3}w)</p>'
     sum_html+='<div id="orderModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal()">&times;</span><span class="close" style="margin-right:30px;font-size:13px;font-weight:normal;cursor:pointer;color:#1565c0" onclick="exportModalExcel()">📥 Export Excel</span><div id="orderList"></div></div></div>'
     sum_html+=tbl(f'Customer Request (WK{WK_ID})',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Pass Due',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ca,ct)
     sum_html+=tbl(f'NAI Schedule (WK{WK_ID})',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Pass Due',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],sca,sct)
-    sum_html+=tbl('NAI Schedule FK Status',1+WK1+1+WK2+1+WK3+1,[('Project code',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],ma,mt_)
+    sum_html+=tbl('NAI Schedule FK Status',1+(WK1+2)+(WK2+2)+(WK3+2),[('Project code',1),(MN1,WK1+2),(MN2,WK2+2),(MN3,WK3+2)],ma,mt_,w0=True)
     sum_html+=tbl('NAI Production (Commit)',1+1+WK1+1+WK2+1+WK3+1,[('Project code',1),('Shipped',1),(MN1,WK1+1),(MN2,WK2+1),(MN3,WK3+1)],na,nt,clickable=True,nai_mode=True)
 
     # ── New OTDR table: Meet-row % per project×week (replaces old OTDR + OTDR Real Summary) ──
@@ -447,18 +459,19 @@ function exportSumExcel(){
   var wks=[WK1,WK2,WK3];
   var wb=XLSX.utils.book_new();
 
-  function makeHeader(extra){
+  function makeHeader(extra,w0){
     var h=['Project Code'];
     if(extra==='pd')h.push('Pass Due');
     else if(extra==='sh')h.push('Shipped');
     for(var mi=0;mi<3;mi++){
+      if(w0)h.push(mls[mi]+' W0');
       for(var wi=1;wi<=wks[mi];wi++)h.push(mls[mi]+' W'+wi);
       h.push(mls[mi]+' Total');
     }
     return h;
   }
-  function addSheet(name,data,extra,totData){
-    var h=makeHeader(extra);
+  function addSheet(name,data,extra,totData,w0){
+    var h=makeHeader(extra,w0);
     var ws=XLSX.utils.aoa_to_sheet([h]);
     for(var i=0;i<d.pj.length;i++){
       var row=data[i];if(!row)continue;
@@ -476,7 +489,7 @@ function exportSumExcel(){
 
   addSheet('CR',d.cr,'pd',d.cr_tot||d.ct);
   addSheet('NAI Schedule',d.sc,'pd',d.sc_tot||d.sct);
-  addSheet('MFS',d.mfs,'',d.mfs_tot);
+  addSheet('MFS',d.mfs,'',d.mfs_tot,true);
   addSheet('NAI',d.nai,'sh',d.nai_tot);
   // OTDR row-count % table: Category × week (Meet rows / total rows)
   (function(){
