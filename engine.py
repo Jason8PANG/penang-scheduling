@@ -102,7 +102,11 @@ def build_all(ds=None):
     M1=int(WK_ID[:2]); M2=M1+1; M3=M1+2
     if M2>12: M2-=12; M3-=12
     if M3>12: M3-=12
-    y1=now.year; y2=y1+(1 if M3<=M1 else 0); y3=y2
+    # 每个显示月份各自的年份：跨年时只有回绕后的月份才 +1
+    # （原实现 y2=y1+(1 if M3<=M1 else 0); y3=y2 在 M1=11 时把 12 月算成次年，虽多为同周数但逻辑错）
+    y1=now.year
+    y2=y1+(1 if M2<M1 else 0)
+    y3=y1+(1 if M3<M1 else 0)
     def mwks(y,m):
         c=calendar.Calendar(); return sum(1 for w in c.monthdayscalendar(y,m) if any(d>0 for d in w))
     WK1,WK2,WK3=mwks(y1,M1),mwks(y2,M2),mwks(y3,M3)
